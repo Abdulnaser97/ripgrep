@@ -539,3 +539,12 @@ are unofficially maintained and may not be up to date.
 
 * [Chinese](https://github.com/chinanf-boy/ripgrep-zh#%E6%9B%B4%E6%96%B0-)
 * [Spanish](https://github.com/UltiRequiem/traducciones/tree/master/ripgrep)
+
+
+### How does `ripgrep` work?
+
+Check out this interactive walkthrough of the `ripgrep` codebase on CodeCanvas [here](https://www.code-canvas.com/?session=unauthenticatedGithub&repo=ripgrep&owner=BurntSushi&branch=master&OnboardingTutorial=true).
+
+To update the diagram, follow the quick tutorial [here](https://docs.code-canvas.com/updating-diagram).
+
+<img width="1916" alt="CodeCanvas Screenshot" src="https://codecanvas-media-public.s3.amazonaws.com/images/codecanvas-readme-screenshot.png" />
