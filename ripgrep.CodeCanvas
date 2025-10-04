@@ -1,0 +1,3414 @@
+{
+	"drawioXML": "<mxfile>\n  <diagram id=\"ZEk06ECK4Ne7QKiEYxb-\" name=\"Page-1\">\n    <mxGraphModel dx=\"1462\" dy=\"812\" grid=\"0\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"0\" arrows=\"1\" fold=\"1\" page=\"0\" pageScale=\"1\" pageWidth=\"850\" pageHeight=\"1100\" math=\"0\" shadow=\"0\">\n      <root>\n        <mxCell id=\"0\" />\n        <mxCell id=\"1\" parent=\"0\" />\n      </root>\n    </mxGraphModel>\n  </diagram>\n</mxfile>\n",
+	"fileName": "",
+	"fileURL": "github",
+	"repoData": {},
+	"simulations": {
+		"Recursively search directories for lines matching a regular expression": {
+			"name": "Recursively search directories for lines matching a regular expression",
+			"simSteps": [
+				{
+					"simStepId": "7efb1a09-7560-48ad-a0f1-30842809392c",
+					"diagramNodeId": "fee953b3-dffd-4d29-ad76-fea8b03638cc",
+					"simStepLabel": "Initiate Parallel Search",
+					"simStepDescription": "The main function, having parsed command-line arguments, determines that a parallel search is required. It constructs a parallel directory walker which respects ignore files (.gitignore, .ignore). The walker is configured to run on a thread pool.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "180",
+						"endLine": "180",
+						"relevantVariables": [
+							"args.walk_builder()",
+							"build_parallel()",
+							"run()"
+						]
+					},
+					"inputDataExample": "{\"pattern\": \"Matcher\", \"path\": \"crates/\", \"threads\": 8}",
+					"outputDataExample": "{\"status\": \"ParallelWalker initialized and running\"}"
+				},
+				{
+					"simStepId": "6e04f3ee-cf2e-4bf2-9a6d-4214a7a374c0",
+					"diagramNodeId": "85096c21-9d43-4a81-ac77-7ca2190cb90b",
+					"simStepLabel": "Distribute File Path to Worker",
+					"simStepDescription": "The parallel directory walker discovers a file that is not ignored. It sends the directory entry as a work item to an available worker thread in the pool.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "181",
+						"endLine": "181",
+						"relevantVariables": [
+							"result"
+						]
+					},
+					"inputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"file_type\": \"file\"}",
+					"outputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"file_type\": \"file\"}"
+				},
+				{
+					"simStepId": "cf43319c-b1d9-4928-ba7c-fffcea0ec4a2",
+					"diagramNodeId": "83a26f9f-eeeb-45b2-b930-b4e4f8fcbdbc",
+					"simStepLabel": "Worker Thread Prepares Search",
+					"simStepDescription": "A worker thread receives a file path from the directory walker. It encapsulates this path into a 'Haystack' object and invokes the `search` method on its cloned `SearchWorker` instance to begin the search process for that specific file.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "186",
+						"endLine": "194",
+						"relevantVariables": [
+							"haystack_builder",
+							"searcher",
+							"searcher.search(&haystack)"
+						]
+					},
+					"inputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"file_type\": \"file\"}",
+					"outputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"status\": \"Search initiated\"}"
+				},
+				{
+					"simStepId": "c3d5c692-3e98-4504-b8b1-3703956760cf",
+					"diagramNodeId": "9fb3ce61-9f81-406c-9731-2cb3ff818751",
+					"simStepLabel": "Dispatch to Searcher Core",
+					"simStepDescription": "The `SearchWorker` determines the appropriate search strategy (e.g., direct file search, decompression, preprocessor). For a standard file, it dispatches the search task to the underlying `grep::searcher::Searcher`, passing the matcher, file path, and a printer sink.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "344",
+						"endLine": "344",
+						"relevantVariables": [
+							"search_path",
+							"matcher",
+							"searcher",
+							"printer",
+							"path"
+						]
+					},
+					"inputDataExample": "{\"haystack\": {\"path\": \"crates/searcher/src/searcher/mod.rs\"}}",
+					"outputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"matcher\": \"PatternMatcher::RustRegex\", \"printer\": \"Printer::Standard\"}"
+				},
+				{
+					"simStepId": "45cec2f1-4626-4c94-bdc5-b335e5b79737",
+					"diagramNodeId": "1ae07df4-0afc-4b84-8509-d192b67a02b7",
+					"simStepLabel": "Execute Line-by-Line Search",
+					"simStepDescription": "The `grep_searcher::Searcher` reads the file content. It employs a line-by-line search strategy, reading chunks of the file into a buffer. It iterates through each line in the buffer, applying the regex `Matcher` to find matching lines.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/glue.rs",
+						"startLine": "39",
+						"endLine": "55",
+						"relevantVariables": [
+							"ReadByLine",
+							"rdr.read_line()",
+							"self.core.match_by_line(buf)"
+						]
+					},
+					"inputDataExample": "{\"path\": \"crates/searcher/src/searcher/mod.rs\", \"matcher\": \"PatternMatcher::RustRegex\", \"printer\": \"Printer::Standard\"}",
+					"outputDataExample": "{\"line_content\": \"A searcher executes searches over a haystack and writes results to a caller\", \"line_number\": 602, \"match_found\": true}"
+				},
+				{
+					"simStepId": "3a31188c-55b1-457d-b045-74d11700fb85",
+					"diagramNodeId": "82f265f8-7b1f-44cf-bfbd-ee35faf26464",
+					"simStepLabel": "Send Match to Sink",
+					"simStepDescription": "When the `Matcher` confirms a match on a line, the searcher core packages the relevant information—including the line content, line number, and byte offset—into a `SinkMatch` object. This object is then passed to the configured sink (the printer) for processing.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/core.rs",
+						"startLine": "529",
+						"endLine": "537",
+						"relevantVariables": [
+							"self.sink.matched",
+							"SinkMatch"
+						]
+					},
+					"inputDataExample": "{\"line_content\": \"A searcher executes searches over a haystack and writes results to a caller\", \"line_number\": 602, \"match_found\": true}",
+					"outputDataExample": "{\"bytes\": \"/// A searcher executes searches over a haystack and writes results to a caller\", \"line_number\": 602, \"absolute_byte_offset\": 21350}"
+				},
+				{
+					"simStepId": "2d60efc6-662a-44d2-8119-952b3086d6d4",
+					"diagramNodeId": "5f11addd-cb94-4f31-832b-46065a8dfc6f",
+					"simStepLabel": "Format Matched Line for Output",
+					"simStepDescription": "The `StandardSink` receives the `SinkMatch` object. It formats the output string by adding the file path, line number, and applying color highlighting to the matched text according to the user's configuration.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "765",
+						"endLine": "782",
+						"relevantVariables": [
+							"StandardSink.matched",
+							"mat",
+							"StandardImpl::from_match",
+							"StandardImpl.sink()"
+						]
+					},
+					"inputDataExample": "{\"bytes\": \"/// A searcher executes searches over a haystack and writes results to a caller\", \"line_number\": 602, \"absolute_byte_offset\": 21350}",
+					"outputDataExample": "{\"formatted_string\": \"crates/searcher/src/searcher/mod.rs:602:/// A searcher executes searches over a haystack and writes results to a caller\"}"
+				},
+				{
+					"simStepId": "19d357b3-8e9b-4af5-a091-c987d64461c9",
+					"diagramNodeId": "b4dcec36-61e7-490b-bafc-73b42d9bd58c",
+					"simStepLabel": "Write Formatted Line to Buffer",
+					"simStepDescription": "The formatted string is written from the `StandardSink` into a thread-local buffer. This buffer accumulates results from a single worker thread before being flushed to the main output stream.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "1192",
+						"endLine": "1200",
+						"relevantVariables": [
+							"self.write_line",
+							"self.wtr.borrow_mut().write_all(line)"
+						]
+					},
+					"inputDataExample": "{\"formatted_string\": \"crates/searcher/src/searcher/mod.rs:602:/// A searcher executes searches over a haystack and writes results to a caller\"}",
+					"outputDataExample": "{\"formatted_string\": \"crates/searcher/src/searcher/mod.rs:602:/// A searcher executes searches over a haystack and writes results to a caller\"}"
+				},
+				{
+					"simStepId": "58fe133a-d724-448e-ac44-cfd3a3de05c3",
+					"diagramNodeId": "8551ceba-1b32-46e2-b8bf-bb30f8d4a919",
+					"simStepLabel": "Print Buffered Output to Console",
+					"simStepDescription": "After a worker thread finishes searching a file, it acquires a lock on the main output writer (stdout) and prints the contents of its local buffer. This approach ensures that output from different files remains contiguous and is not interleaved.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "204",
+						"endLine": "208",
+						"relevantVariables": [
+							"bufwtr.print",
+							"searcher.printer().get_mut()"
+						]
+					},
+					"inputDataExample": "{\"buffer_content\": \"crates/searcher/src/searcher/mod.rs:602:/// A searcher executes searches over a haystack and writes results to a caller\\n...\"}",
+					"outputDataExample": "{\"status\": \"Output written to stdout\"}"
+				}
+			],
+			"description": "<ul><li>Core function: <code>rg <PATTERN> PATH</code> recursively searches for a regex pattern in files</li><li>- Defaults to searching the current directory if no path is specified, providing a seamless user experience for codebases</li><li>- Uses a high-performance regex engine built in Rust for speed</li><li>- Implemented via parallel directory traversal (<code>walk_parallel</code> in <code>crates/core/main</li><li>rs</code>) and a <code>Searcher</code> worker that orchestrates matching</li></ul>",
+			"simulationNodesAndEdges": {
+				"fee953b3-dffd-4d29-ad76-fea8b03638cc": {
+					"simStepIds": [
+						"7efb1a09-7560-48ad-a0f1-30842809392c"
+					]
+				},
+				"83a26f9f-eeeb-45b2-b930-b4e4f8fcbdbc": {
+					"simStepIds": [
+						"cf43319c-b1d9-4928-ba7c-fffcea0ec4a2"
+					]
+				},
+				"1ae07df4-0afc-4b84-8509-d192b67a02b7": {
+					"simStepIds": [
+						"45cec2f1-4626-4c94-bdc5-b335e5b79737"
+					]
+				},
+				"5f11addd-cb94-4f31-832b-46065a8dfc6f": {
+					"simStepIds": [
+						"2d60efc6-662a-44d2-8119-952b3086d6d4"
+					]
+				},
+				"8551ceba-1b32-46e2-b8bf-bb30f8d4a919": {
+					"simStepIds": [
+						"58fe133a-d724-448e-ac44-cfd3a3de05c3"
+					]
+				},
+				"85096c21-9d43-4a81-ac77-7ca2190cb90b": {
+					"simStepIds": [
+						"6e04f3ee-cf2e-4bf2-9a6d-4214a7a374c0"
+					]
+				},
+				"9fb3ce61-9f81-406c-9731-2cb3ff818751": {
+					"simStepIds": [
+						"c3d5c692-3e98-4504-b8b1-3703956760cf"
+					]
+				},
+				"82f265f8-7b1f-44cf-bfbd-ee35faf26464": {
+					"simStepIds": [
+						"3a31188c-55b1-457d-b045-74d11700fb85"
+					]
+				},
+				"b4dcec36-61e7-490b-bafc-73b42d9bd58c": {
+					"simStepIds": [
+						"19d357b3-8e9b-4af5-a091-c987d64461c9"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "search_parallel, Searcher, Matcher",
+			"generationPrompt": "Recursively search directories for lines matching a regular expression",
+			"generationKeywords": "search_parallel, Searcher, Matcher"
+		},
+		"Automatically filter files based on .gitignore, hidden status, and binary content": {
+			"name": "Automatically filter files based on .gitignore, hidden status, and binary content",
+			"simSteps": [
+				{
+					"simStepId": "17258a40-341b-47fc-b8e6-6bdbbf1759d3",
+					"diagramNodeId": "0c0ae16f-ce03-4b45-8001-fd6d86c88c26",
+					"simStepLabel": "File Filtering Flow: Configure Directory Walker",
+					"simStepDescription": "Based on command-line arguments (or their absence), a `WalkBuilder` is configured. By default, it's set to respect `.gitignore`, `.ignore`, and `.rgignore` files, and to skip hidden files. Flags like `--no-ignore` or `--hidden` (`-.`) would change these settings. The `-u` flag (`--unrestricted`) is a shortcut to disable filtering; `-u` is like `--no-ignore`, and `-uu` is like `--no-ignore --hidden`.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "889",
+						"endLine": "901",
+						"relevantVariables": [
+							"walk_builder",
+							"builder.hidden",
+							"builder.parents",
+							"builder.ignore",
+							"builder.git_global",
+							"builder.git_ignore",
+							"builder.git_exclude",
+							"builder.require_git",
+							"builder.ignore_case_insensitive"
+						]
+					},
+					"inputDataExample": "{\"args\": {\"hidden\": false, \"no_ignore_parent\": false, \"no_ignore_dot\": false, \"no_ignore_vcs\": false}}",
+					"outputDataExample": "{\"WalkBuilder_config\": {\"hidden\": true, \"parents\": true, \"ignore\": true, \"git_global\": true, \"git_ignore\": true, \"git_exclude\": true}}"
+				},
+				{
+					"simStepId": "1fa4ede1-d9a1-4edf-8443-a5878a24d62d",
+					"diagramNodeId": "191cbdde-4908-42fb-99ae-4ccf18378a52",
+					"simStepLabel": "File Filtering Flow: Build Walker",
+					"simStepDescription": "The configuration is used to build a `Walk` or `WalkParallel` iterator, which will traverse the file system.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "584",
+						"endLine": "598",
+						"relevantVariables": [
+							"WalkBuilder::build",
+							"self.ig_builder.build()",
+							"Walk"
+						]
+					},
+					"inputDataExample": "{\"WalkBuilder_config\": {\"hidden\": true, \"parents\": true, \"ignore\": true, \"git_global\": true, \"git_ignore\": true, \"git_exclude\": true}}",
+					"outputDataExample": "{\"WalkBuilder_config\": {\"hidden\": true, \"parents\": true, \"ignore\": true, \"git_global\": true, \"git_ignore\": true, \"git_exclude\": true}}"
+				},
+				{
+					"simStepId": "049e3fd2-dc49-48ac-b95b-96bc13fa4a8d",
+					"diagramNodeId": "59ee464b-3ddf-4a59-ba64-be5255d0cc3b",
+					"simStepLabel": "File Filtering Flow: Load Ignore Files for Directory",
+					"simStepDescription": "As the walker enters a new directory, it searches for ignore files like `.gitignore` and `.ignore`. If found, their contents are parsed into glob patterns and added to an `Ignore` matcher for that directory, respecting precedence rules (`.ignore` > `.gitignore`).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "246",
+						"endLine": "332",
+						"relevantVariables": [
+							"add_child_path",
+							"create_gitignore",
+							"custom_ig_matcher",
+							"ig_matcher",
+							"gi_matcher",
+							"gi_exclude_matcher"
+						]
+					},
+					"inputDataExample": "{\"directory_path\": \"/home/user/project/src\"}",
+					"outputDataExample": "{\"ignore_matchers_loaded\": [\"custom_ignore_matcher\", \"ignore_matcher\", \"git_ignore_matcher\", \"git_exclude_matcher\"]}"
+				},
+				{
+					"simStepId": "f3c0ef98-f677-4c8f-ac07-e8ce71b74c72",
+					"diagramNodeId": "f0fa491a-956f-498d-922d-3d73fe953d49",
+					"simStepLabel": "File Filtering Flow: Check Directory Entry",
+					"simStepDescription": "For each file or directory found (`DirEntry`), the walker passes it to the matching logic to determine if it should be skipped.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "1805",
+						"endLine": "1806",
+						"relevantVariables": [
+							"should_skip_entry",
+							"ig.matched_dir_entry(dent)"
+						]
+					},
+					"inputDataExample": "{\"DirEntry\": {\"path\": \"/home/user/project/.env\", \"is_dir\": false, \"depth\": 1}}",
+					"outputDataExample": "{\"DirEntry\": {\"path\": \"/home/user/project/.env\", \"is_dir\": false, \"depth\": 1}}"
+				},
+				{
+					"simStepId": "681eb898-faca-46ef-a99b-af7070c21873",
+					"diagramNodeId": "7bc3efd5-9a5f-4d85-b799-1cf87790a08b",
+					"simStepLabel": "File Filtering Flow: Apply Filtering Rules",
+					"simStepDescription": "The `matched_dir_entry` function orchestrates the filtering logic. It checks for overrides, then matches against ignore file rules, and finally checks if the file is hidden.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "350",
+						"endLine": "361",
+						"relevantVariables": [
+							"matched_dir_entry",
+							"self.matched",
+							"is_hidden"
+						]
+					},
+					"inputDataExample": "{\"DirEntry\": {\"path\": \"/home/user/project/.env\", \"is_dir\": false, \"depth\": 1}}",
+					"outputDataExample": "{\"MatchResult\": \"Ignore(Hidden)\"}"
+				},
+				{
+					"simStepId": "fc2bcd71-b55a-4ad8-925f-75ffd5f943fa",
+					"diagramNodeId": "d62ccc25-76e1-4381-a70d-e5ce8d90fb24",
+					"simStepLabel": "File Filtering Flow: Delegate Hidden File Check",
+					"simStepDescription": "The `matched_dir_entry` function calls `is_hidden` to check if the file or directory name starts with a dot.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "358",
+						"endLine": "358",
+						"relevantVariables": [
+							"is_hidden(dent)"
+						]
+					},
+					"inputDataExample": "{\"DirEntry\": {\"path\": \"/home/user/project/.env\", \"file_name\": \".env\"}}",
+					"outputDataExample": "{\"DirEntry\": {\"path\": \"/home/user/project/.env\", \"file_name\": \".env\"}}"
+				},
+				{
+					"simStepId": "4c61c550-7269-4c76-aee0-08c0f397b63d",
+					"diagramNodeId": "191cb317-868f-44b3-bfef-976fe8f9561a",
+					"simStepLabel": "File Filtering Flow: Execute Hidden File Check",
+					"simStepDescription": "The `is_hidden` utility function checks if the file's base name starts with a `.` character. On Windows, it also checks for the 'hidden' file attribute.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/pathutil.rs",
+						"startLine": "8",
+						"endLine": "16",
+						"relevantVariables": [
+							"is_hidden",
+							"dent.file_name()",
+							"as_bytes()"
+						]
+					},
+					"inputDataExample": "{\"DirEntry\": {\"file_name\": \".env\"}}",
+					"outputDataExample": "{\"is_hidden\": true}"
+				},
+				{
+					"simStepId": "21575ecc-e6a4-47e5-bef4-7ad289630870",
+					"diagramNodeId": "8c993125-7225-4859-ada2-a68a5057eef2",
+					"simStepLabel": "File Filtering Flow: Delegate Ignore Glob Check",
+					"simStepDescription": "If the file is not hidden or is whitelisted by another rule, its path is checked against the collected glob patterns from all relevant ignore files.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "357",
+						"endLine": "357",
+						"relevantVariables": [
+							"self.matched(dent.path(), dent.is_dir())"
+						]
+					},
+					"inputDataExample": "{\"path\": \"/home/user/project/target/debug/app\", \"is_dir\": false}",
+					"outputDataExample": "{\"path\": \"/home/user/project/target/debug/app\", \"is_dir\": false}"
+				},
+				{
+					"simStepId": "3b6d2214-4834-4292-b20d-2195aee86817",
+					"diagramNodeId": "6ef2a6c0-4f92-464f-a99b-5ae56014db4c",
+					"simStepLabel": "File Filtering Flow: Match Against Ignore Globs",
+					"simStepDescription": "The path is matched against patterns from `.gitignore`, `.ignore`, global gitignore, and other sources. The matching respects precedence (e.g., a whitelist `!target/app` in `.ignore` would override an ignore `target/` in `.gitignore`).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "412",
+						"endLine": "541",
+						"relevantVariables": [
+							"matched_ignore",
+							"custom_ignore_matcher.matched",
+							"ignore_matcher.matched",
+							"git_ignore_matcher.matched",
+							"git_exclude_matcher.matched",
+							"git_global_matcher.matched"
+						]
+					},
+					"inputDataExample": "{\"path\": \"target/debug/app\", \"is_dir\": false, \"gitignore_patterns\": [\"target/\"]}",
+					"outputDataExample": "{\"MatchResult\": \"Ignore(gitignore::Glob('target/'))\"}"
+				},
+				{
+					"simStepId": "e2375c8d-2acb-43e0-8718-00a2a7d7f689",
+					"diagramNodeId": "9774c7d2-1598-4580-b459-a7ad58371c67",
+					"simStepLabel": "File Filtering Flow: Return Final Decision",
+					"simStepDescription": "The final result (`Ignore`, `Whitelist`, or `None`) is returned to the directory walker.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "1806",
+						"endLine": "1806",
+						"relevantVariables": [
+							"ig.matched_dir_entry(dent)"
+						]
+					},
+					"inputDataExample": "{\"MatchResult\": \"Ignore(Hidden)\"}",
+					"outputDataExample": "{\"MatchResult\": \"Ignore(Hidden)\"}"
+				},
+				{
+					"simStepId": "c6dbaeb3-618a-4ddb-8383-ece56abda9f7",
+					"diagramNodeId": "efcce7e5-1cc9-44ef-9f3e-0267f3d8e61c",
+					"simStepLabel": "File Filtering Flow: Walker Skips or Yields Entry",
+					"simStepDescription": "Based on the final decision, the walker either skips the current file/directory or yields it as a result to be searched.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "1130",
+						"endLine": "1139",
+						"relevantVariables": [
+							"Walk::next",
+							"self.skip_entry",
+							"should_skip_entry"
+						]
+					},
+					"inputDataExample": "{\"MatchResult\": \"Ignore(Hidden)\"}",
+					"outputDataExample": "{\"action\": \"skip_entry\"}"
+				},
+				{
+					"simStepId": "94371253-20a9-4bdd-804c-a3defb50205c",
+					"diagramNodeId": "c5edbe5d-c942-47d6-b464-8d24d32bd4b9",
+					"simStepLabel": "Binary Detection Flow: Configure Searcher",
+					"simStepDescription": "For files that are not filtered out, a search worker is configured. By default (`-uuu` or `--binary` not specified), it uses implicit binary detection, which is configured to stop searching a file if a `NUL` (\\x00) byte is found.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "138",
+						"endLine": "146",
+						"relevantVariables": [
+							"binary_detection_implicit",
+							"self.config.binary_implicit",
+							"grep::searcher::BinaryDetection"
+						]
+					},
+					"inputDataExample": "{\"args\": {\"binary\": \"Auto\"}}",
+					"outputDataExample": "{\"config\": {\"binary_implicit\": \"Quit(0)\"}}"
+				},
+				{
+					"simStepId": "5f11c073-1322-447e-b02e-c1a2af1486b2",
+					"diagramNodeId": "149dcef9-f96c-43f7-929c-23413d0e8a91",
+					"simStepLabel": "Binary Detection Flow: Prepare Line Buffer",
+					"simStepDescription": "The `BinaryDetection` configuration is passed to the `Searcher`, which in turn configures the `LineBuffer` that will read the file's contents.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "506",
+						"endLine": "514",
+						"relevantVariables": [
+							"SearcherBuilder::binary_detection",
+							"self.config.binary"
+						]
+					},
+					"inputDataExample": "{\"config\": {\"binary_implicit\": \"Quit(0)\"}}",
+					"outputDataExample": "{\"config\": {\"binary_implicit\": \"Quit(0)\"}}"
+				},
+				{
+					"simStepId": "786d36e5-52b9-428a-af4e-0e65cee1bab9",
+					"diagramNodeId": "8ece57d2-6f37-42c4-aba9-0db00edd4778",
+					"simStepLabel": "Binary Detection Flow: Detect NUL Byte",
+					"simStepDescription": "As the `LineBufferReader` reads chunks of the file, it scans for the configured binary-detection byte. By default, this is the `NUL` byte (`\\x00`). If this byte is found, the read operation stops.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/line_buffer.rs",
+						"startLine": "192",
+						"endLine": "200",
+						"relevantVariables": [
+							"LineBufferBuilder::binary_detection",
+							"BinaryDetection",
+							"BinaryDetection::Quit"
+						]
+					},
+					"inputDataExample": "{\"file_chunk\": \"some text\\u0000and more\"}",
+					"outputDataExample": "{\"binary_detected\": true, \"offset\": 10}"
+				},
+				{
+					"simStepId": "987d43f3-ac7a-4a1b-aa29-6d888da7cfd7",
+					"diagramNodeId": "565af3ba-7954-409d-a197-83965385f34b",
+					"simStepLabel": "Binary Detection Flow: Signal Binary File",
+					"simStepDescription": "The `LineBufferReader` signals back to the `Searcher` that binary data was detected at a specific byte offset. The `Searcher` then communicates this to the `Sink` (printer).",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "824",
+						"endLine": "824",
+						"relevantVariables": [
+							"sink.binary_data"
+						]
+					},
+					"inputDataExample": "{\"binary_detected\": true, \"offset\": 10}",
+					"outputDataExample": "{\"binary_detected\": true, \"offset\": 10}"
+				},
+				{
+					"simStepId": "ed897cb1-4622-4c1d-ab3c-3e88b147fd16",
+					"diagramNodeId": "f096b26b-a993-448f-9764-7c56299ae181",
+					"simStepLabel": "Binary Detection Flow: Stop Searching and Report",
+					"simStepDescription": "The printer's sink receives the `binary_data` signal. It stops further processing of the file and, depending on other flags, may print a message like `Binary file (standard input) matches` if a match was found before the NUL byte.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "824",
+						"endLine": "832",
+						"relevantVariables": [
+							"sink.binary_data",
+							"searcher.binary_detection()",
+							"quit_byte()",
+							"log::debug!"
+						]
+					},
+					"inputDataExample": "{\"path\": \"/path/to/binary/file\", \"binary_byte_offset\": 10}",
+					"outputDataExample": "{\"action\": \"stop_processing_file\", \"log_message\": \"ignoring /path/to/binary/file: found binary data at offset 10\"}"
+				}
+			],
+			"description": "<ul><li>- By default, respects rules in <code></li><li>gitignore</code>, <code></li><li>ignore</code>, and <code></li><li>rgignore</code> files to exclude irrelevant files from search results</li><li>- Skips hidden files and directories (those starting with a <code></li><li></code>) by default, focusing the search on source code</li><li>- Automatically skips binary files by detecting NULL bytes to prevent garbled output and improve relevance</li><li>- This behavior is primarily managed by the <code>ignore</code> crate's <code>WalkBuilder</code> and <code>BinaryDetection</code> in <code>grep-searcher</code>, and can be disabled with <code>-u</code> flags</li></ul>",
+			"simulationNodesAndEdges": {
+				"0c0ae16f-ce03-4b45-8001-fd6d86c88c26": {
+					"simStepIds": [
+						"17258a40-341b-47fc-b8e6-6bdbbf1759d3"
+					]
+				},
+				"59ee464b-3ddf-4a59-ba64-be5255d0cc3b": {
+					"simStepIds": [
+						"049e3fd2-dc49-48ac-b95b-96bc13fa4a8d"
+					]
+				},
+				"7bc3efd5-9a5f-4d85-b799-1cf87790a08b": {
+					"simStepIds": [
+						"681eb898-faca-46ef-a99b-af7070c21873"
+					]
+				},
+				"191cb317-868f-44b3-bfef-976fe8f9561a": {
+					"simStepIds": [
+						"4c61c550-7269-4c76-aee0-08c0f397b63d"
+					]
+				},
+				"6ef2a6c0-4f92-464f-a99b-5ae56014db4c": {
+					"simStepIds": [
+						"3b6d2214-4834-4292-b20d-2195aee86817"
+					]
+				},
+				"efcce7e5-1cc9-44ef-9f3e-0267f3d8e61c": {
+					"simStepIds": [
+						"c6dbaeb3-618a-4ddb-8383-ece56abda9f7"
+					]
+				},
+				"c5edbe5d-c942-47d6-b464-8d24d32bd4b9": {
+					"simStepIds": [
+						"94371253-20a9-4bdd-804c-a3defb50205c"
+					]
+				},
+				"8ece57d2-6f37-42c4-aba9-0db00edd4778": {
+					"simStepIds": [
+						"786d36e5-52b9-428a-af4e-0e65cee1bab9"
+					]
+				},
+				"f096b26b-a993-448f-9764-7c56299ae181": {
+					"simStepIds": [
+						"ed897cb1-4622-4c1d-ab3c-3e88b147fd16"
+					]
+				},
+				"191cbdde-4908-42fb-99ae-4ccf18378a52": {
+					"simStepIds": [
+						"1fa4ede1-d9a1-4edf-8443-a5878a24d62d"
+					]
+				},
+				"f0fa491a-956f-498d-922d-3d73fe953d49": {
+					"simStepIds": [
+						"f3c0ef98-f677-4c8f-ac07-e8ce71b74c72"
+					]
+				},
+				"d62ccc25-76e1-4381-a70d-e5ce8d90fb24": {
+					"simStepIds": [
+						"fc2bcd71-b55a-4ad8-925f-75ffd5f943fa"
+					]
+				},
+				"8c993125-7225-4859-ada2-a68a5057eef2": {
+					"simStepIds": [
+						"21575ecc-e6a4-47e5-bef4-7ad289630870"
+					]
+				},
+				"9774c7d2-1598-4580-b459-a7ad58371c67": {
+					"simStepIds": [
+						"e2375c8d-2acb-43e0-8718-00a2a7d7f689"
+					]
+				},
+				"149dcef9-f96c-43f7-929c-23413d0e8a91": {
+					"simStepIds": [
+						"5f11c073-1322-447e-b02e-c1a2af1486b2"
+					]
+				},
+				"565af3ba-7954-409d-a197-83965385f34b": {
+					"simStepIds": [
+						"987d43f3-ac7a-4a1b-aa29-6d888da7cfd7"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "WalkBuilder, ignore, hidden, binary_detection",
+			"generationPrompt": "Automatically filter files based on .gitignore, hidden status, and binary content",
+			"generationKeywords": "WalkBuilder, ignore, hidden, binary_detection"
+		},
+		"Manually include or exclude specific files and file types from a search": {
+			"name": "Manually include or exclude specific files and file types from a search",
+			"simSteps": [
+				{
+					"simStepId": "6dc9840e-c33e-4483-bd88-e650fabd9c51",
+					"diagramNodeId": "c0e8b1c4-e191-4211-aad4-6be88b92a072",
+					"simStepLabel": "Parse Command-Line Arguments",
+					"simStepDescription": "Ripgrep starts by parsing the command-line arguments provided by the user. Flags like `--glob` (`-g`), `--type` (`-t`), `--type-not` (`-T`), and `--type-add` are recognized and their values are collected into a temporary `LowArgs` structure.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "2504",
+						"endLine": "2572",
+						"relevantVariables": [
+							"Glob",
+							"Flag::update",
+							"args.globs"
+						]
+					},
+					"inputDataExample": "rg 'fn' -g '*.rs' -g '!src/main.rs' --type-add 'rust:*.rs' -t rust -T toml",
+					"outputDataExample": "{\n  \"globs\": [\n    \"*.rs\",\n    \"!src/main.rs\"\n  ],\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}"
+				},
+				{
+					"simStepId": "18184e88-837a-4e4d-b824-bc371595d42e",
+					"diagramNodeId": "4373def2-f4db-41fc-94b4-238b72df32ce",
+					"simStepLabel": "Low-level to High-level Argument Conversion",
+					"simStepDescription": "The parsed `LowArgs` structure, containing simple collections of strings and enums, is passed to a constructor to create a `HiArgs` structure. This conversion process builds more complex objects like glob and type matchers.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "111",
+						"endLine": "111",
+						"relevantVariables": [
+							"HiArgs::from_low_args"
+						]
+					},
+					"inputDataExample": "{\n  \"globs\": [\n    \"*.rs\",\n    \"!src/main.rs\"\n  ],\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}",
+					"outputDataExample": "{\n  \"globs\": [\n    \"*.rs\",\n    \"!src/main.rs\"\n  ],\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}"
+				},
+				{
+					"simStepId": "ae5710b2-b742-4996-acee-51055fa1bff6",
+					"diagramNodeId": "3ffa4ee8-16b5-4a7b-81d6-b67fa0d4902e",
+					"simStepLabel": "Build Glob Override Matcher",
+					"simStepDescription": "The `globs` function is called to process glob patterns from `-g` and `--iglob`. It uses `ignore::overrides::OverrideBuilder` to construct a high-priority filter. This builder will interpret globs starting with `!` as exclusion patterns.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "1214",
+						"endLine": "1225",
+						"relevantVariables": [
+							"globs",
+							"ignore::overrides::OverrideBuilder",
+							"low.globs",
+							"low.iglobs",
+							"builder.add(glob)"
+						]
+					},
+					"inputDataExample": "{\n  \"globs\": [\n    \"*.rs\",\n    \"!src/main.rs\"\n  ],\n  \"iglobs\": [],\n  \"glob_case_insensitive\": false\n}",
+					"outputDataExample": "{\n  \"builder\": \"ignore::overrides::OverrideBuilder\"\n}"
+				},
+				{
+					"simStepId": "d2788fc8-9f77-477b-b66a-8a3a0256d495",
+					"diagramNodeId": "907e6e6c-2343-4711-9a97-43fe6d3a5028",
+					"simStepLabel": "Add Raw Globs to Builder",
+					"simStepDescription": "Each glob pattern string provided by the user is passed to the `OverrideBuilder`.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/overrides.rs",
+						"startLine": "149",
+						"endLine": "152",
+						"relevantVariables": [
+							"OverrideBuilder::add",
+							"self.builder.add_line"
+						]
+					},
+					"inputDataExample": "\"!src/main.rs\"",
+					"outputDataExample": "\"!src/main.rs\""
+				},
+				{
+					"simStepId": "62db2008-5759-4d9c-b784-cc1af83fc022",
+					"diagramNodeId": "8fcf5028-964d-4098-af80-f840077566fd",
+					"simStepLabel": "Parse and Process Individual Globs",
+					"simStepDescription": "Inside the `ignore` crate, `GitignoreBuilder::add_line` processes each glob string. It applies `.gitignore` semantics, such as prepending `**/` to patterns without a path separator to allow them to match at any directory depth. It then uses `globset::GlobBuilder` to parse the glob into a structured format.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/gitignore.rs",
+						"startLine": "449",
+						"endLine": "528",
+						"relevantVariables": [
+							"GitignoreBuilder::add_line",
+							"GlobBuilder::new",
+							"glob.actual"
+						]
+					},
+					"inputDataExample": "\"!src/main.rs\"",
+					"outputDataExample": "{\n  \"glob\": {\n    \"original\": \"!src/main.rs\",\n    \"actual\": \"src/main.rs\",\n    \"is_whitelist\": false\n  }\n}"
+				},
+				{
+					"simStepId": "cbc04ec5-7f3b-41ea-aff0-a227894d84d4",
+					"diagramNodeId": "e438d533-3d6a-4b67-b71c-401a36231f57",
+					"simStepLabel": "Collect Processed Globs",
+					"simStepDescription": "The parsed and compiled `globset::Glob` object for each pattern is added to a `GlobSetBuilder`, which prepares to combine them into an efficient, multi-pattern matcher.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/gitignore.rs",
+						"startLine": "529",
+						"endLine": "529",
+						"relevantVariables": [
+							"self.builder.add(parsed)"
+						]
+					},
+					"inputDataExample": "{\n  \"glob\": \"globset::Glob(\\\"src/main.rs\\\")\"\n}",
+					"outputDataExample": "{\n  \"glob\": \"globset::Glob(\\\"src/main.rs\\\")\"\n}"
+				},
+				{
+					"simStepId": "7ad608c3-dcaa-4ea6-9174-e68e0eb9b2cc",
+					"diagramNodeId": "213cea68-d7ad-48dd-8dd7-00bca6be9fe0",
+					"simStepLabel": "Finalize Override Matcher",
+					"simStepDescription": "The `OverrideBuilder`'s `build` method is called. This internally calls `GlobSetBuilder::build`, which compiles all the individual globs into a single, highly optimized `GlobSet` matcher. This final `Override` object is stored in the `HiArgs` struct.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/overrides.rs",
+						"startLine": "131",
+						"endLine": "133",
+						"relevantVariables": [
+							"OverrideBuilder::build",
+							"self.builder.build()"
+						]
+					},
+					"inputDataExample": "{\n  \"globset_builder\": \"contains globs for [*.rs, !src/main.rs]\"\n}",
+					"outputDataExample": "{\n  \"override_matcher\": \"ignore::overrides::Override\"\n}"
+				},
+				{
+					"simStepId": "31c3ff94-6416-420f-be54-9de852fca0bf",
+					"diagramNodeId": "896e330b-cfc6-4374-a7b1-657d1d934deb",
+					"simStepLabel": "Process File Type Arguments",
+					"simStepDescription": "With the glob overrides built, the `HiArgs` constructor proceeds to build the file type matcher by passing the collected `type_changes` to the `types` helper function.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "149",
+						"endLine": "149",
+						"relevantVariables": [
+							"types(&low)"
+						]
+					},
+					"inputDataExample": "{\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}",
+					"outputDataExample": "{\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}"
+				},
+				{
+					"simStepId": "0464bbb0-b454-405b-a324-4369cf40ec88",
+					"diagramNodeId": "b9a26826-880c-4aae-a625-a90ec028fe51",
+					"simStepLabel": "Build File Type Matcher",
+					"simStepDescription": "The `types` function initializes an `ignore::types::TypesBuilder`, adds default file type definitions, and then iterates through the user's type changes. It calls `add_def` for `--type-add`, `select` for `-t`, and `negate` for `-T` to configure the builder.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "1179",
+						"endLine": "1198",
+						"relevantVariables": [
+							"types",
+							"ignore::types::TypesBuilder",
+							"builder.add_defaults()",
+							"tychange",
+							"builder.clear()",
+							"builder.add_def()",
+							"builder.select()",
+							"builder.negate()"
+						]
+					},
+					"inputDataExample": "{\n  \"type_changes\": [\n    {\n      \"type\": \"Add\",\n      \"def\": \"rust:*.rs\"\n    },\n    {\n      \"type\": \"Select\",\n      \"name\": \"rust\"\n    },\n    {\n      \"type\": \"Negate\",\n      \"name\": \"toml\"\n    }\n  ]\n}",
+					"outputDataExample": "{\n  \"types_builder\": \"Contains definitions for 'rust', 'toml', etc., and selections for 'rust' (include) and 'toml' (exclude)\"\n}"
+				},
+				{
+					"simStepId": "d356c6e2-8e97-451e-8513-0bd524e26db4",
+					"diagramNodeId": "4a584a2c-6ac0-458f-a6e6-fbedf1bfc558",
+					"simStepLabel": "Finalize Types Matcher",
+					"simStepDescription": "After all user configurations are applied, the `TypesBuilder::build` method is called to finalize the matcher.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "1199",
+						"endLine": "1199",
+						"relevantVariables": [
+							"builder.build()"
+						]
+					},
+					"inputDataExample": "{\n  \"types_builder\": \"Configured with user selections and definitions\"\n}",
+					"outputDataExample": "{\n  \"types_builder\": \"Configured with user selections and definitions\"\n}"
+				},
+				{
+					"simStepId": "1ad53294-cb57-4125-8eb7-ed18c5df7b68",
+					"diagramNodeId": "0cbb420c-a59b-4509-87bc-460aca72c0a8",
+					"simStepLabel": "Compile Globs for Selected File Types",
+					"simStepDescription": "The `TypesBuilder::build` method resolves all selected and negated file type names to their corresponding glob patterns. It then compiles all of these globs into a single, efficient `GlobSet` that will be part of the final `Types` matcher object.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/types.rs",
+						"startLine": "314",
+						"endLine": "344",
+						"relevantVariables": [
+							"TypesBuilder::build",
+							"GlobSetBuilder",
+							"build_set.add",
+							"set"
+						]
+					},
+					"inputDataExample": "{\n  \"selections\": [\n    \"rust\",\n    \"!toml\"\n  ],\n  \"definitions\": {\n    \"rust\": [\"*.rs\"],\n    \"toml\": [\"*.toml\"]\n  }\n}",
+					"outputDataExample": "{\n  \"types_matcher\": {\n    \"glob_set\": \"Compiled from [*.rs, *.toml]\",\n    \"selections\": \"Mapping of glob matches back to 'rust' or 'toml' selections\"\n  }\n}"
+				},
+				{
+					"simStepId": "13500c0e-aac3-4ded-9289-d7ed7d2d09b0",
+					"diagramNodeId": "752bf5ed-35cd-4781-ad19-3c05f57b97ba",
+					"simStepLabel": "Configure Directory Walker",
+					"simStepDescription": "The fully constructed `HiArgs` object, containing both the `Override` and `Types` matchers, is used to configure a `WalkBuilder` for directory traversal. This transfers the filtering logic to the component responsible for finding files.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "887",
+						"endLine": "896",
+						"relevantVariables": [
+							"walk_builder",
+							"builder.overrides(self.globs.clone())",
+							"builder.types(self.types.clone())"
+						]
+					},
+					"inputDataExample": "{\n  \"hi_args\": {\n    \"globs\": \"Override matcher\",\n    \"types\": \"Types matcher\"\n  }\n}",
+					"outputDataExample": "{\n  \"hi_args\": {\n    \"globs\": \"Override matcher\",\n    \"types\": \"Types matcher\"\n  }\n}"
+				},
+				{
+					"simStepId": "630716f8-5ac5-4a7d-add4-8397d5a75ed4",
+					"diagramNodeId": "c3641066-8c5c-46ed-a6aa-de328dd7eb77",
+					"simStepLabel": "Begin Directory Traversal",
+					"simStepDescription": "The directory walker starts traversing files and directories. For each entry found, it consults a combined `Ignore` matcher to determine if the entry should be included in the search.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "375",
+						"endLine": "376",
+						"relevantVariables": [
+							"Ignore::matched"
+						]
+					},
+					"inputDataExample": "{\n  \"dir_entry\": \"src/lib.rs\"\n}",
+					"outputDataExample": "{\n  \"dir_entry\": \"src/lib.rs\",\n  \"is_dir\": false\n}"
+				},
+				{
+					"simStepId": "844cc506-cb15-46b2-91a9-d48983b0275b",
+					"diagramNodeId": "fae9326f-561f-4440-917a-76709f63cc4b",
+					"simStepLabel": "Path Sent for Matching",
+					"simStepDescription": "The file path of the current directory entry is passed to the core matching logic, which applies filters in order of precedence.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "384",
+						"endLine": "391",
+						"relevantVariables": [
+							"self.0.overrides.matched"
+						]
+					},
+					"inputDataExample": "{\n  \"path\": \"src/lib.rs\",\n  \"is_dir\": false\n}",
+					"outputDataExample": "{\n  \"path\": \"src/lib.rs\",\n  \"is_dir\": false\n}"
+				},
+				{
+					"simStepId": "8b70ea48-d1ad-43d2-99dd-f518f1d769a0",
+					"diagramNodeId": "a5d8b375-2488-4f96-aab2-7d8c385d79b4",
+					"simStepLabel": "Apply High-Precedence Override Filter",
+					"simStepDescription": "The first filter applied is the `Override` matcher built from `--glob` flags. If a file path matches any glob in this set, a definitive decision (either `Whitelist` or `Ignore`) is made immediately, and no further filters are checked for this file.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/overrides.rs",
+						"startLine": "104",
+						"endLine": "112",
+						"relevantVariables": [
+							"Override::matched",
+							"self.0.matched(path, is_dir).invert()"
+						]
+					},
+					"inputDataExample": "{\n  \"path\": \"src/main.rs\",\n  \"is_dir\": false\n}",
+					"outputDataExample": "{\n  \"match_result\": \"Ignore(Glob for '!src/main.rs')\"\n}"
+				},
+				{
+					"simStepId": "55684897-6e03-479f-9a3f-8820d4d6e965",
+					"diagramNodeId": "8251023d-5d41-4ade-967c-827bb2260b58",
+					"simStepLabel": "Path Sent for Type Matching",
+					"simStepDescription": "If the override filter did not match the path, the matching logic proceeds to the next filter: file types. The path is passed to the `Types` matcher.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/dir.rs",
+						"startLine": "402",
+						"endLine": "403",
+						"relevantVariables": [
+							"self.0.types.matched"
+						]
+					},
+					"inputDataExample": "{\n  \"path\": \"src/lib.rs\",\n  \"is_dir\": false\n}",
+					"outputDataExample": "{\n  \"path\": \"src/lib.rs\",\n  \"is_dir\": false\n}"
+				},
+				{
+					"simStepId": "11c00d82-e36d-45fd-b0d7-3faa1fa51041",
+					"diagramNodeId": "7bdae677-921a-4912-a2ac-cbac8532d23a",
+					"simStepLabel": "Apply File Type Filter",
+					"simStepDescription": "The `Types::matched` function extracts just the file name from the path (e.g., `lib.rs`). It then checks this name against its internal `GlobSet`. Based on whether the matching glob belongs to a whitelisted (`-t`) or blacklisted (`-T`) type, it returns an appropriate match result.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/types.rs",
+						"startLine": "261",
+						"endLine": "299",
+						"relevantVariables": [
+							"Types::matched",
+							"file_name",
+							"self.set.matches_into",
+							"sel.is_negated()",
+							"Match::Whitelist",
+							"Match::Ignore"
+						]
+					},
+					"inputDataExample": "{\n  \"path_name\": \"lib.rs\",\n  \"is_dir\": false\n}",
+					"outputDataExample": "{\n  \"match_result\": \"Whitelist(Glob for type 'rust')\"\n}"
+				},
+				{
+					"simStepId": "b0195d65-34f3-41c2-8e52-95658a7345f9",
+					"diagramNodeId": "7b0048d0-45b3-493e-8a50-cc63f340fcf4",
+					"simStepLabel": "Final Filtering Decision",
+					"simStepDescription": "The match result from the `Types` filter (and potentially other lower-precedence filters like `.gitignore`) is propagated back to the directory walker.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "451",
+						"endLine": "479",
+						"relevantVariables": [
+							"WalkBuilder"
+						]
+					},
+					"inputDataExample": "{\n  \"match_result\": \"Whitelist(Glob for type 'rust')\"\n}",
+					"outputDataExample": "{\n  \"match_result\": \"Whitelist(Glob for type 'rust')\"\n}"
+				},
+				{
+					"simStepId": "bf776a19-6bae-4046-95ea-13b541e5f5e2",
+					"diagramNodeId": "326ad82c-48cd-4347-950f-22b130f8e5e6",
+					"simStepLabel": "Include or Exclude File from Search",
+					"simStepDescription": "The directory walker uses the final match decision. If the file is whitelisted or not ignored by any filter, it is yielded as an entry to be searched. If it is ignored, it is skipped, and the walker moves to the next file.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "226",
+						"endLine": "236",
+						"relevantVariables": [
+							"WalkState::next",
+							"self.ignore_match(dent)",
+							"mat.is_ignore()"
+						]
+					},
+					"inputDataExample": "{\n  \"path\": \"src/lib.rs\",\n  \"match_result\": \"Whitelist(Glob for type 'rust')\"\n}",
+					"outputDataExample": "{\n  \"action\": \"Yield DirEntry for 'src/lib.rs' to be searched\"\n}"
+				}
+			],
+			"description": "<ul><li>- Use the <code>-g</code>/<code>--glob</code> flag to specify glob patterns for files to include or exclude (e</li><li>g</li><li>, <code>-g '<em></li><li>rs'</code> or <code>-g '!</em></li><li>md'</code>)</li><li>- Use the <code>-t</code>/<code>--type</code> and <code>-T</code>/<code>--type-not</code> flags to filter by pre-defined or custom file types (e</li><li>g</li><li>, <code>-trust</code>, <code>-Tjs</code>)</li><li>- Custom types can be defined on the fly with <code>--type-add</code> or in a configuration file</li><li>- Implemented using <code>Override</code> builders in the <code>ignore</code> crate to apply ad-hoc filtering rules</li></ul>",
+			"simulationNodesAndEdges": {
+				"c0e8b1c4-e191-4211-aad4-6be88b92a072": {
+					"simStepIds": [
+						"6dc9840e-c33e-4483-bd88-e650fabd9c51"
+					]
+				},
+				"3ffa4ee8-16b5-4a7b-81d6-b67fa0d4902e": {
+					"simStepIds": [
+						"ae5710b2-b742-4996-acee-51055fa1bff6"
+					]
+				},
+				"8fcf5028-964d-4098-af80-f840077566fd": {
+					"simStepIds": [
+						"62db2008-5759-4d9c-b784-cc1af83fc022"
+					]
+				},
+				"213cea68-d7ad-48dd-8dd7-00bca6be9fe0": {
+					"simStepIds": [
+						"7ad608c3-dcaa-4ea6-9174-e68e0eb9b2cc"
+					]
+				},
+				"b9a26826-880c-4aae-a625-a90ec028fe51": {
+					"simStepIds": [
+						"0464bbb0-b454-405b-a324-4369cf40ec88"
+					]
+				},
+				"0cbb420c-a59b-4509-87bc-460aca72c0a8": {
+					"simStepIds": [
+						"1ad53294-cb57-4125-8eb7-ed18c5df7b68"
+					]
+				},
+				"c3641066-8c5c-46ed-a6aa-de328dd7eb77": {
+					"simStepIds": [
+						"630716f8-5ac5-4a7d-add4-8397d5a75ed4"
+					]
+				},
+				"a5d8b375-2488-4f96-aab2-7d8c385d79b4": {
+					"simStepIds": [
+						"8b70ea48-d1ad-43d2-99dd-f518f1d769a0"
+					]
+				},
+				"7bdae677-921a-4912-a2ac-cbac8532d23a": {
+					"simStepIds": [
+						"11c00d82-e36d-45fd-b0d7-3faa1fa51041"
+					]
+				},
+				"326ad82c-48cd-4347-950f-22b130f8e5e6": {
+					"simStepIds": [
+						"bf776a19-6bae-4046-95ea-13b541e5f5e2"
+					]
+				},
+				"4373def2-f4db-41fc-94b4-238b72df32ce": {
+					"simStepIds": [
+						"18184e88-837a-4e4d-b824-bc371595d42e"
+					]
+				},
+				"907e6e6c-2343-4711-9a97-43fe6d3a5028": {
+					"simStepIds": [
+						"d2788fc8-9f77-477b-b66a-8a3a0256d495"
+					]
+				},
+				"e438d533-3d6a-4b67-b71c-401a36231f57": {
+					"simStepIds": [
+						"cbc04ec5-7f3b-41ea-aff0-a227894d84d4"
+					]
+				},
+				"896e330b-cfc6-4374-a7b1-657d1d934deb": {
+					"simStepIds": [
+						"31c3ff94-6416-420f-be54-9de852fca0bf"
+					]
+				},
+				"4a584a2c-6ac0-458f-a6e6-fbedf1bfc558": {
+					"simStepIds": [
+						"d356c6e2-8e97-451e-8513-0bd524e26db4"
+					]
+				},
+				"752bf5ed-35cd-4781-ad19-3c05f57b97ba": {
+					"simStepIds": [
+						"13500c0e-aac3-4ded-9289-d7ed7d2d09b0"
+					]
+				},
+				"fae9326f-561f-4440-917a-76709f63cc4b": {
+					"simStepIds": [
+						"844cc506-cb15-46b2-91a9-d48983b0275b"
+					]
+				},
+				"8251023d-5d41-4ade-967c-827bb2260b58": {
+					"simStepIds": [
+						"55684897-6e03-479f-9a3f-8820d4d6e965"
+					]
+				},
+				"7b0048d0-45b3-493e-8a50-cc63f340fcf4": {
+					"simStepIds": [
+						"b0195d65-34f3-41c2-8e52-95658a7345f9"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "glob, type-add, overrides, types",
+			"generationPrompt": "Manually include or exclude specific files and file types from a search",
+			"generationKeywords": "glob, type-add, overrides, types"
+		},
+		"High-performance parallel searching using multi-threading and memory maps": {
+			"name": "High-performance parallel searching using multi-threading and memory maps",
+			"simSteps": [
+				{
+					"simStepId": "75c2e235-6f3d-4b06-8b04-2483afc3099e",
+					"diagramNodeId": "66293298-c3cb-4599-bcd5-e7953b5d7dd4",
+					"simStepLabel": "Argument Parsing and Mmap Mode Configuration",
+					"simStepDescription": "The application starts and parses command-line arguments. When the user provides the `--mmap` flag, it updates the `mmap` field in the `LowArgs` struct to `MmapMode::AlwaysTryMmap`, indicating a preference for using memory maps.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "4092",
+						"endLine": "4099",
+						"relevantVariables": [
+							"Mmap",
+							"Flag",
+							"update",
+							"args.mmap",
+							"MmapMode::AlwaysTryMmap",
+							"MmapMode::Never"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"rg\", \"--mmap\", \"-i\", \"error\", \"./logs\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"mmap\": \"AlwaysTryMmap\", \"patterns\": [\"error\"], \"paths\": [\"./logs\"], \"case_mode\": \"Smart\"}}"
+				},
+				{
+					"simStepId": "45bdcfba-93f7-422b-9d35-09081ebb404e",
+					"diagramNodeId": "cb5aebde-56ce-465a-ad14-778478e1d656",
+					"simStepLabel": "Low-Level to High-Level Argument Conversion",
+					"simStepDescription": "The parsed low-level arguments (`LowArgs`) are passed to a conversion function to create a more structured high-level representation (`HiArgs`) that is easier for the core application logic to use.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "161",
+						"endLine": "161",
+						"relevantVariables": [
+							"HiArgs::from_low"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"mmap\": \"AlwaysTryMmap\", \"patterns\": [\"error\"], \"paths\": [\"./logs\"], \"threads\": 8}}",
+					"outputDataExample": "{\"LowArgs\": {\"mmap\": \"AlwaysTryMmap\", \"patterns\": [\"error\"], \"paths\": [\"./logs\"], \"threads\": 8}}"
+				},
+				{
+					"simStepId": "7521380f-7d32-4e5b-9db7-7283fc5a1849",
+					"diagramNodeId": "84746b22-cd66-4264-951b-93cbfcfcec4e",
+					"simStepLabel": "Mmap Strategy Determination",
+					"simStepDescription": "The `HiArgs::from_low` constructor analyzes the `MmapMode`. Since it is `AlwaysTryMmap`, it sets the `mmap_choice` to `grep::searcher::MmapChoice::auto()`. This enables the searcher to attempt using memory maps, but the final decision is still based on heuristics (e.g., file size). If `MmapMode` were `Auto`, it would only use `mmap` if a small number of files were provided directly.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "227",
+						"endLine": "250",
+						"relevantVariables": [
+							"mmap_choice",
+							"MmapMode::Auto",
+							"MmapMode::AlwaysTryMmap",
+							"MmapMode::Never",
+							"grep::searcher::MmapChoice::auto()",
+							"grep::searcher::MmapChoice::never()"
+						]
+					},
+					"inputDataExample": "{\"low_args\": {\"mmap\": \"AlwaysTryMmap\"}}",
+					"outputDataExample": "{\"hi_args\": {\"mmap_choice\": \"MmapChoice::auto()\"}}"
+				},
+				{
+					"simStepId": "a84c9cfc-7d69-40a7-b0c4-05cfae4cf433",
+					"diagramNodeId": "4f260272-c6cd-467f-b4d4-93c296782e2c",
+					"simStepLabel": "Passing High-Level Config to Execution Logic",
+					"simStepDescription": "The fully configured `HiArgs` object, now containing the `MmapChoice`, is passed to the main `run` function which orchestrates the search.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "80",
+						"endLine": "80",
+						"relevantVariables": [
+							"args"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"mmap_choice\": \"MmapChoice::auto()\", \"threads\": 8}}",
+					"outputDataExample": "{\"HiArgs\": {\"mmap_choice\": \"MmapChoice::auto()\", \"threads\": 8}}"
+				},
+				{
+					"simStepId": "f59f7cc3-b38d-40b8-8cbf-5631eae02b01",
+					"diagramNodeId": "b89c98dc-23d9-4cce-9be4-536ca9171466",
+					"simStepLabel": "Dispatch to Parallel Search",
+					"simStepDescription": "The main `run` function checks the number of configured threads. Since it is greater than one, it dispatches the execution to `search_parallel`, the function responsible for multi-threaded searching.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "86",
+						"endLine": "87",
+						"relevantVariables": [
+							"args.mode()",
+							"args.threads()",
+							"search_parallel"
+						]
+					},
+					"inputDataExample": "{\"args\": {\"mode\": \"Search\", \"threads\": 8}}",
+					"outputDataExample": "{\"function_call\": \"search_parallel\"}"
+				},
+				{
+					"simStepId": "aee911c8-133d-4e18-96f8-c0c17ce79bc5",
+					"diagramNodeId": "01d631f3-22b2-488d-98e7-7308d65cc727",
+					"simStepLabel": "Invoking Parallel Search",
+					"simStepDescription": "The `HiArgs` configuration is passed to the `search_parallel` function to begin the directory traversal and search.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "87",
+						"endLine": "87",
+						"relevantVariables": [
+							"search_parallel",
+							"args"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"mmap_choice\": \"MmapChoice::auto()\", \"threads\": 8}}",
+					"outputDataExample": "{\"HiArgs\": {\"mmap_choice\": \"MmapChoice::auto()\", \"threads\": 8}}"
+				},
+				{
+					"simStepId": "865bde1f-4ad4-48a7-ac16-5c18982c9b6e",
+					"diagramNodeId": "ce78aee4-28b0-48aa-9dcd-cea1499fe055",
+					"simStepLabel": "Build Parallel Directory Walker",
+					"simStepDescription": "Inside `search_parallel`, a `WalkParallel` instance is created using `args.walk_builder()`. This component, from the `ignore` crate, is responsible for recursively walking the directory tree across multiple threads while respecting ignore files (`.gitignore`, etc.).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/ignore/src/walk.rs",
+						"startLine": "595",
+						"endLine": "595",
+						"relevantVariables": [
+							"WalkBuilder",
+							"build_parallel",
+							"WalkParallel"
+						]
+					},
+					"inputDataExample": "{\"walk_builder_config\": {\"threads\": 8, \"respect_ignore_files\": true}}",
+					"outputDataExample": "{\"WalkParallel\": {\"status\": \"initialized\"}}"
+				},
+				{
+					"simStepId": "e4ab2591-123b-4226-9dce-0bf698044e39",
+					"diagramNodeId": "22408ca7-b743-48fb-8695-aeff33a3c2e7",
+					"simStepLabel": "Distributing File Paths to Worker Threads",
+					"simStepDescription": "The `WalkParallel` instance's `run` method is called with a closure. The walker traverses directories and sends `DirEntry` results for each file to a pool of worker threads managed by `crossbeam`.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "175",
+						"endLine": "189",
+						"relevantVariables": [
+							"build_parallel",
+							"run",
+							"worker",
+							"haystack_builder"
+						]
+					},
+					"inputDataExample": "{\"DirEntry\": {\"path\": \"./logs/app-2023-10-27.log\", \"file_type\": \"file\"}}",
+					"outputDataExample": "{\"DirEntry\": {\"path\": \"./logs/app-2023-10-27.log\", \"file_type\": \"file\"}}"
+				},
+				{
+					"simStepId": "d2470e87-a2b3-46a6-aed1-311ce11e8ba4",
+					"diagramNodeId": "50d27edd-cc9e-4ffb-b101-47ed6733e521",
+					"simStepLabel": "Worker Thread Attempts Memory Map",
+					"simStepDescription": "A worker thread receives a file path. Before searching, it calls `searcher.search_file()`, which checks the `MmapChoice` configuration. Because `mmap` is enabled, it attempts to open the file using a memory map.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "686",
+						"endLine": "689",
+						"relevantVariables": [
+							"self.config.mmap.open",
+							"file",
+							"path",
+							"mmap"
+						]
+					},
+					"inputDataExample": "{\"file_path\": \"./logs/large-events.log\", \"file_handle\": \"<File>\"}",
+					"outputDataExample": "{\"status\": \"attempting_mmap\", \"file_path\": \"./logs/large-events.log\"}"
+				},
+				{
+					"simStepId": "6bf6e40d-0459-4062-837b-7f7aaf4ac646",
+					"diagramNodeId": "c0213efd-7314-413f-8a1c-e1159cc69aa2",
+					"simStepLabel": "Passing File Handle for Mapping",
+					"simStepDescription": "The `search_file` function passes the file handle and path to the `MmapChoice::open` method to perform the memory mapping operation.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "686",
+						"endLine": "686",
+						"relevantVariables": [
+							"self.config.mmap.open"
+						]
+					},
+					"inputDataExample": "{\"file\": \"<File>\", \"path\": \"./logs/large-events.log\"}",
+					"outputDataExample": "{\"file\": \"<File>\", \"path\": \"./logs/large-events.log\"}"
+				},
+				{
+					"simStepId": "ecb4222e-b8cf-452c-a513-7ec478d405c0",
+					"diagramNodeId": "52ce1885-7c83-4d59-bdff-23f1bb97e227",
+					"simStepLabel": "Memory Map Creation",
+					"simStepDescription": "The `MmapChoice::open` method verifies that memory maps are enabled via the configuration. It then calls `Mmap::map(file)` from the `memmap` crate. If the operating system successfully maps the file into the process's address space, an `Mmap` object is returned.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mmap.rs",
+						"startLine": "65",
+						"endLine": "86",
+						"relevantVariables": [
+							"open",
+							"is_enabled",
+							"Mmap::map",
+							"mmap"
+						]
+					},
+					"inputDataExample": "{\"file\": \"<File>\", \"path\": \"./logs/large-events.log\"}",
+					"outputDataExample": "{\"Mmap\": {\"status\": \"success\", \"size\": 157286400}}"
+				},
+				{
+					"simStepId": "dc87abd5-f7d5-4e81-b907-9d0dc81a8780",
+					"diagramNodeId": "3f2ab0e4-bf45-434a-93b4-aeeadffca912",
+					"simStepLabel": "Returning Mmap Object",
+					"simStepDescription": "The successfully created `Mmap` object, which represents the file's contents in memory, is returned to the `search_file` function.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mmap.rs",
+						"startLine": "80",
+						"endLine": "80",
+						"relevantVariables": [
+							"Some(mmap)"
+						]
+					},
+					"inputDataExample": "{\"Mmap\": {\"status\": \"success\", \"size\": 157286400}}",
+					"outputDataExample": "{\"Mmap\": {\"status\": \"success\", \"size\": 157286400}}"
+				},
+				{
+					"simStepId": "da0d44b6-c6a4-4225-b58f-f376a56fbed5",
+					"diagramNodeId": "f529c8cd-56d1-48ad-a512-f0f7defe5412",
+					"simStepLabel": "Search Memory-Mapped Slice",
+					"simStepDescription": "Because `mmap.open()` returned a valid `Mmap` object, `search_file` proceeds to call `self.search_slice()`. This function executes the regex search directly against the memory slice, avoiding the need to read the file into an intermediate buffer on the heap, which is highly efficient for large files.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "688",
+						"endLine": "689",
+						"relevantVariables": [
+							"search_slice",
+							"matcher",
+							"mmap",
+							"write_to"
+						]
+					},
+					"inputDataExample": "{\"matcher\": \"<RegexMatcher>\", \"mmap_slice\": \"&[u8]\", \"sink\": \"<Printer>\"}",
+					"outputDataExample": "{\"search_result\": \"ok\"}"
+				},
+				{
+					"simStepId": "d2a75f16-c0b5-4c7b-8637-00e059aeeb19",
+					"diagramNodeId": "83819a4c-f73e-4503-a339-1dc4682b4083",
+					"simStepLabel": "Sending Matches to Sink",
+					"simStepDescription": "As `search_slice` finds matching lines within the memory-mapped data, it sends each match to the configured `Sink`. In ripgrep, the sink is typically a `Printer` responsible for formatting the output.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/core.rs",
+						"startLine": "334",
+						"endLine": "338",
+						"relevantVariables": [
+							"sink.matched"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"line_number\": 12345, \"bytes\": \"[ERROR] 2023-10-27T10:30:00Z: Database connection failed.\", \"matches\": [[0, 5]]}}",
+					"outputDataExample": "{\"SinkMatch\": {\"line_number\": 12345, \"bytes\": \"[ERROR] 2023-10-27T10:30:00Z: Database connection failed.\", \"matches\": [[0, 5]]}}"
+				},
+				{
+					"simStepId": "f25b1366-166b-4aeb-b0ed-76556649a3cb",
+					"diagramNodeId": "93ce1fc0-3e9b-4006-bd90-19e2b12360cf",
+					"simStepLabel": "Printing Results",
+					"simStepDescription": "The `Printer` sink receives the match data. It formats the line with colors, line numbers, and file paths as configured, and writes the final output to a thread-safe buffer. This buffer is then flushed to standard output, displaying the search results to the user.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/main.rs",
+						"startLine": "171",
+						"endLine": "174",
+						"relevantVariables": [
+							"args.printer",
+							"bufwtr.buffer"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"line_number\": 12345, \"bytes\": \"[ERROR] 2023-10-27T10:30:00Z: Database connection failed.\", \"matches\": [[0, 5]]}}",
+					"outputDataExample": "{\"stdout\": \"logs/large-events.log:12345:[ERROR] 2023-10-27T10:30:00Z: Database connection failed.\\n\"}"
+				}
+			],
+			"description": "<ul><li>- Performs recursive directory search in parallel by default, leveraging modern multi-core processors for significant speed improvements</li><li>- The <code>main</code> function in <code>crates/core/main</li><li>rs</code> dispatches to <code>search_parallel</code> when more than one thread is available</li><li>- Automatically uses memory maps (<code>mmap</code>) for searching large single files to improve performance, which is configurable via the <code>--mmap</code> flag</li><li>- Parallelism is managed by <code>ignore::WalkParallel</code> and threads are coordinated using <code>crossbeam</code></li></ul>",
+			"simulationNodesAndEdges": {
+				"66293298-c3cb-4599-bcd5-e7953b5d7dd4": {
+					"simStepIds": [
+						"75c2e235-6f3d-4b06-8b04-2483afc3099e"
+					]
+				},
+				"84746b22-cd66-4264-951b-93cbfcfcec4e": {
+					"simStepIds": [
+						"7521380f-7d32-4e5b-9db7-7283fc5a1849"
+					]
+				},
+				"b89c98dc-23d9-4cce-9be4-536ca9171466": {
+					"simStepIds": [
+						"f59f7cc3-b38d-40b8-8cbf-5631eae02b01"
+					]
+				},
+				"ce78aee4-28b0-48aa-9dcd-cea1499fe055": {
+					"simStepIds": [
+						"865bde1f-4ad4-48a7-ac16-5c18982c9b6e"
+					]
+				},
+				"50d27edd-cc9e-4ffb-b101-47ed6733e521": {
+					"simStepIds": [
+						"d2470e87-a2b3-46a6-aed1-311ce11e8ba4"
+					]
+				},
+				"52ce1885-7c83-4d59-bdff-23f1bb97e227": {
+					"simStepIds": [
+						"ecb4222e-b8cf-452c-a513-7ec478d405c0"
+					]
+				},
+				"f529c8cd-56d1-48ad-a512-f0f7defe5412": {
+					"simStepIds": [
+						"da0d44b6-c6a4-4225-b58f-f376a56fbed5"
+					]
+				},
+				"93ce1fc0-3e9b-4006-bd90-19e2b12360cf": {
+					"simStepIds": [
+						"f25b1366-166b-4aeb-b0ed-76556649a3cb"
+					]
+				},
+				"cb5aebde-56ce-465a-ad14-778478e1d656": {
+					"simStepIds": [
+						"45bdcfba-93f7-422b-9d35-09081ebb404e"
+					]
+				},
+				"4f260272-c6cd-467f-b4d4-93c296782e2c": {
+					"simStepIds": [
+						"a84c9cfc-7d69-40a7-b0c4-05cfae4cf433"
+					]
+				},
+				"01d631f3-22b2-488d-98e7-7308d65cc727": {
+					"simStepIds": [
+						"aee911c8-133d-4e18-96f8-c0c17ce79bc5"
+					]
+				},
+				"22408ca7-b743-48fb-8695-aeff33a3c2e7": {
+					"simStepIds": [
+						"e4ab2591-123b-4226-9dce-0bf698044e39"
+					]
+				},
+				"c0213efd-7314-413f-8a1c-e1159cc69aa2": {
+					"simStepIds": [
+						"6bf6e40d-0459-4062-837b-7f7aaf4ac646"
+					]
+				},
+				"3f2ab0e4-bf45-434a-93b4-aeeadffca912": {
+					"simStepIds": [
+						"dc87abd5-f7d5-4e81-b907-9d0dc81a8780"
+					]
+				},
+				"83819a4c-f73e-4503-a339-1dc4682b4083": {
+					"simStepIds": [
+						"d2a75f16-c0b5-4c7b-8637-00e059aeeb19"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "search_parallel, build_parallel, mmap, MmapChoice",
+			"generationPrompt": "High-performance parallel searching using multi-threading and memory maps",
+			"generationKeywords": "search_parallel, build_parallel, mmap, MmapChoice"
+		},
+		"Customize search result output with context, line/column numbers, and JSON": {
+			"name": "Customize search result output with context, line/column numbers, and JSON",
+			"simSteps": [
+				{
+					"simStepId": "aaf4906a-6ce5-4590-aaae-1baaa1b68131",
+					"diagramNodeId": "d48d9d48-4e13-4dce-8fe6-b2346af1a6f1",
+					"simStepLabel": "Flow 1 - Standard Output: Parse Context and Formatting Flags",
+					"simStepDescription": "The application starts by parsing command-line arguments such as `-C 1` (context), `-n` (line numbers), and `--column`. These flags are defined in `defs.rs` and the parser updates a `LowArgs` struct to reflect the user's desired output format.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "1022",
+						"endLine": "1025",
+						"relevantVariables": [
+							"Context",
+							"update",
+							"args.context.set_both"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"rg\", \"-C\", \"1\", \"-n\", \"--column\", \"Watson\", \"sherlock.txt\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"context\": {\"mode\": \"Limited\", \"both\": 1}, \"line_number\": true, \"column\": true, \"mode\": \"Search(Standard)\"}}"
+				},
+				{
+					"simStepId": "c02930b0-acb3-4acb-82aa-f12fd73c7958",
+					"diagramNodeId": "eced0960-84f0-4891-a161-39ce420e3eb4",
+					"simStepLabel": "Flow 1 - Standard Output: Propagate Low-Level Config",
+					"simStepDescription": "The parsed `LowArgs` configuration is processed and transformed into a `HiArgs` struct. This higher-level configuration is used to orchestrate the various components of the search process, like the searcher and the printer.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "153",
+						"endLine": "527",
+						"relevantVariables": [
+							"HiArgs",
+							"from_low_args"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"context\": {\"mode\": \"Limited\", \"both\": 1}, \"line_number\": true, \"column\": true, \"mode\": \"Search(Standard)\"}}",
+					"outputDataExample": "{\"LowArgs\": {\"context\": {\"mode\": \"Limited\", \"both\": 1}, \"line_number\": true, \"column\": true, \"mode\": \"Search(Standard)\"}}"
+				},
+				{
+					"simStepId": "ff303172-79ee-466d-a025-3e7cb3b8bd1f",
+					"diagramNodeId": "10744c57-f84c-492e-b79f-784999aee8df",
+					"simStepLabel": "Flow 1 - Standard Output: Configure Searcher",
+					"simStepDescription": "The `HiArgs` configuration is used to build a `Searcher`. The `SearcherBuilder` is configured with the number of context lines to show before and after a match (`-C 1` results in 1 line before and 1 after) and to enable line number tracking (`-n`).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "722",
+						"endLine": "734",
+						"relevantVariables": [
+							"searcher",
+							"SearcherBuilder",
+							"builder.line_number",
+							"builder.before_context",
+							"builder.after_context",
+							"limited.get()"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"context\": \"Limited(both: 1)\", \"line_number\": true}}",
+					"outputDataExample": "{\"Searcher\": {\"config\": {\"after_context\": 1, \"before_context\": 1, \"line_number\": true}}}"
+				},
+				{
+					"simStepId": "58734a8a-0dea-4e6c-8a97-10fb4edbc556",
+					"diagramNodeId": "f74e6869-9dfb-4ab5-b418-eee1967ff1b7",
+					"simStepLabel": "Flow 1 - Standard Output: Select and Configure Standard Printer",
+					"simStepDescription": "Based on the absence of the `--json` flag, the `HiArgs::printer` method selects the `Standard` printer. It then calls `printer_standard` to configure a `StandardBuilder` with settings from `HiArgs`, such as enabling column numbers.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "585",
+						"endLine": "587",
+						"relevantVariables": [
+							"printer",
+							"SearchMode::Standard",
+							"self.printer_standard(wtr)"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"column\": true, \"context_separator\": \"--\", \"search_mode\": \"Standard\"}}",
+					"outputDataExample": "{\"HiArgs\": {\"column\": true, \"context_separator\": \"--\", \"search_mode\": \"Standard\"}}"
+				},
+				{
+					"simStepId": "9eec98ce-5973-4486-ad24-908bd31cb6ee",
+					"diagramNodeId": "c47986cb-26b4-49cc-ab66-12d7070bccb7",
+					"simStepLabel": "Flow 1 - Standard Output: Build Standard Printer",
+					"simStepDescription": "The `printer_standard` method uses a `StandardBuilder` to construct the final `Standard` printer. It applies configurations for features like column numbers, context separators, and colors before creating the printer instance.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "604",
+						"endLine": "657",
+						"relevantVariables": [
+							"printer_standard",
+							"StandardBuilder",
+							"builder.column",
+							"builder.separator_context",
+							"builder.build(wtr)"
+						]
+					},
+					"inputDataExample": "{\"builder_config\": {\"column\": true, \"context_separator\": [45, 45]}}",
+					"outputDataExample": "{\"StandardPrinter\": {\"config\": {\"column\": true, \"separator_context\": \"--\"}}}"
+				},
+				{
+					"simStepId": "905e58a3-7fef-4fbb-8262-b20e2f13f95b",
+					"diagramNodeId": "739d06fc-85bf-49d2-92d0-b457891a3997",
+					"simStepLabel": "Flow 1 - Standard Output: Send Search Results to Sink",
+					"simStepDescription": "The configured `Searcher` runs and finds matches and their surrounding context lines. For each result, it invokes the appropriate method (`matched`, `context`, or `context_break`) on the `StandardSink`, passing along the relevant data like line content, line numbers, and match locations.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "789",
+						"endLine": "825",
+						"relevantVariables": [
+							"Sink::matched",
+							"Sink::context",
+							"Sink::context_break"
+						]
+					},
+					"inputDataExample": "{\"SinkContext\": {\"bytes\": \"Holmeses, success in the province of detective work must always\\n\", \"line_number\": 2, \"absolute_byte_offset\": 65, \"kind\": \"After\"}}",
+					"outputDataExample": "{\"SinkContext\": {\"bytes\": \"Holmeses, success in the province of detective work must always\\n\", \"line_number\": 2, \"absolute_byte_offset\": 65, \"kind\": \"After\"}}"
+				},
+				{
+					"simStepId": "09287ee8-73a7-4757-b92d-68d88304d0d2",
+					"diagramNodeId": "4a8f3082-dae3-4d64-b8cc-5daa3388cf07",
+					"simStepLabel": "Flow 1 - Standard Output: Format Text Output",
+					"simStepDescription": "The `StandardSink` receives match and context data and formats it for human-readable output. It prepends line numbers and column numbers to matching lines, uses different separators for match (`:`) versus context (`-`) lines, and inserts a context break separator (`--`) between disconnected result blocks.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "866",
+						"endLine": "877",
+						"relevantVariables": [
+							"StandardImpl",
+							"sink",
+							"write_prelude",
+							"write_line_number",
+							"write_column",
+							"write_context_separator"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"bytes\": \"For the Doctor Watsons of this world...\\n\", \"line_number\": 1, \"matches\":[{\"start\":15, \"end\":21}]}}",
+					"outputDataExample": "{\"formatted_line\": \"1:16:For the Doctor Watsons of this world...\\n\"}"
+				},
+				{
+					"simStepId": "6657886e-26ea-4991-95ed-deb42a2defce",
+					"diagramNodeId": "87dcc549-2a4f-4962-a82c-435e36134495",
+					"simStepLabel": "Flow 1 - Standard Output: Write Formatted Text to stdout",
+					"simStepDescription": "The final formatted string, complete with context, line/column numbers, and separators, is written to the standard output stream.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "1541",
+						"endLine": "1543",
+						"relevantVariables": [
+							"wtr"
+						]
+					},
+					"inputDataExample": "{\"output_string\": \"1:16:For the Doctor Watsons...\\n2-Holmeses, success...\\n--\\n\"}",
+					"outputDataExample": "{\"output_string\": \"1:16:For the Doctor Watsons...\\n2-Holmeses, success...\\n--\\n\"}"
+				},
+				{
+					"simStepId": "0bf34798-9586-4200-8372-916999070ba2",
+					"diagramNodeId": "6e81146c-872e-4c4c-803e-0baaece5085f",
+					"simStepLabel": "Flow 2 - JSON Output: Parse JSON Flag",
+					"simStepDescription": "The application is started with the `--json` flag. The argument parser recognizes this flag and sets the application's search mode to `JSON` within the `LowArgs` configuration struct.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "3499",
+						"endLine": "3502",
+						"relevantVariables": [
+							"Json",
+							"update",
+							"args.mode",
+							"SearchMode::JSON"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"rg\", \"--json\", \"Watson\", \"sherlock.txt\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"mode\": \"Search(JSON)\"}}"
+				},
+				{
+					"simStepId": "3e85aa42-d59d-48b9-9cd6-705aebf5f270",
+					"diagramNodeId": "ab2ae6b3-1a52-4b69-9e30-138f9abca118",
+					"simStepLabel": "Flow 2 - JSON Output: Propagate JSON Mode Configuration",
+					"simStepDescription": "The `LowArgs` struct, indicating JSON mode, is converted into a `HiArgs` struct. This `HiArgs` struct now carries the directive to use the JSON printer for output.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "153",
+						"endLine": "527",
+						"relevantVariables": [
+							"HiArgs",
+							"from_low_args"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"mode\": \"Search(JSON)\"}}",
+					"outputDataExample": "{\"HiArgs\": {\"mode\": \"Search(JSON)\"}}"
+				},
+				{
+					"simStepId": "c587fa94-e164-4f06-a7b3-c8794944667e",
+					"diagramNodeId": "33cc7b78-df88-4d09-8f65-a10685c61434",
+					"simStepLabel": "Flow 2 - JSON Output: Select and Build JSON Printer",
+					"simStepDescription": "The `HiArgs::printer` method checks the search mode. Since it's `SearchMode::JSON`, it calls `HiArgs::printer_json`. This method then uses `JSONBuilder` to construct a `JSON` printer instance, which will format output as JSON Lines.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "593",
+						"endLine": "602",
+						"relevantVariables": [
+							"printer_json",
+							"JSONBuilder",
+							"build"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"search_mode\": \"JSON\"}}",
+					"outputDataExample": "{\"JSONPrinter\": {\"config\": {\"pretty\": false}}}"
+				},
+				{
+					"simStepId": "f1fd38a9-0707-40a4-870f-957bd40b166a",
+					"diagramNodeId": "759cf0b4-c2e6-4460-b3fc-fe02917bbff5",
+					"simStepLabel": "Flow 2 - JSON Output: Send Search Results to JSONSink",
+					"simStepDescription": "The `Searcher` begins its work. It first sends a `begin` message to the `JSONSink`. As it finds matches and contextual lines, it sends the data packaged in `SinkMatch` and `SinkContext` structs to the sink's `matched` and `context` methods.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/json.rs",
+						"startLine": "737",
+						"endLine": "786",
+						"relevantVariables": [
+							"JSONSink",
+							"matched",
+							"context"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"bytes\": \"...Doctor Watson...\", \"line_number\": 5, \"absolute_byte_offset\": 258, \"matches\": [{\"start\": 11, \"end\": 17}]}}",
+					"outputDataExample": "{\"SinkMatch\": {\"bytes\": \"...Doctor Watson...\", \"line_number\": 5, \"absolute_byte_offset\": 258, \"matches\": [{\"start\": 11, \"end\": 17}]}}"
+				},
+				{
+					"simStepId": "a65ca555-1efc-4aa6-9981-0bee62fd0660",
+					"diagramNodeId": "2eab1465-119d-480b-bae1-17b028327783",
+					"simStepLabel": "Flow 2 - JSON Output: Format 'match' and 'context' JSON Messages",
+					"simStepDescription": "The `JSONSink` receives data for each match or context line and serializes it into a JSON object according to the defined format. Each object is tagged with a `type` (`match` or `context`) and contains a `data` payload with details like the file path, line content (base64 encoded if not UTF-8), line number, and submatch offsets.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/jsont.rs",
+						"startLine": "11",
+						"endLine": "44",
+						"relevantVariables": [
+							"Message",
+							"Match",
+							"Context",
+							"serialize"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"bytes\": \"...Doctor Watson...\", \"line_number\": 5, \"absolute_byte_offset\": 258, \"matches\": [{\"start\": 11, \"end\": 17}]}}",
+					"outputDataExample": "{\"type\":\"match\",\"data\":{\"path\":{\"text\":\"sherlock.txt\"},\"lines\":{\"text\":\"but Doctor Watson...\\n\"},\"line_number\":5,\"absolute_offset\":258,\"submatches\":[{\"match\":{\"text\":\"Watson\"},\"start\":11,\"end\":17}]}}"
+				},
+				{
+					"simStepId": "e0dee126-27b6-4bf2-be62-8c5cb2e2bdc6",
+					"diagramNodeId": "f1ec947f-db2a-4a33-a6ee-cc741bdf2bc6",
+					"simStepLabel": "Flow 2 - JSON Output: Write JSON Line to stdout",
+					"simStepDescription": "Each serialized JSON message for `begin`, `match`, and `context` events is written as a single line to the standard output stream, adhering to the JSON Lines format.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/json.rs",
+						"startLine": "864",
+						"endLine": "876",
+						"relevantVariables": [
+							"JSON",
+							"write_message",
+							"serde_json::to_writer"
+						]
+					},
+					"inputDataExample": "{\"json_string\": \"{\\\"type\\\":\\\"match\\\",\\\"data\\\":{...}}\\n\"}",
+					"outputDataExample": "{\"json_string\": \"{\\\"type\\\":\\\"match\\\",\\\"data\\\":{...}}\\n\"}"
+				},
+				{
+					"simStepId": "a2b666ba-eafd-4092-987b-e08bb9144423",
+					"diagramNodeId": "df602689-8a7a-482d-9af0-5b7dea47b7af",
+					"simStepLabel": "Flow 2 - JSON Output: Format 'end' JSON Message",
+					"simStepDescription": "Once the search of a file is complete, the `JSONSink`'s `finish` method is called. It constructs and serializes a final `end` message, which includes the file path and comprehensive summary statistics like elapsed time, total matches, and bytes searched.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/json.rs",
+						"startLine": "665",
+						"endLine": "684",
+						"relevantVariables": [
+							"JSONSink",
+							"finish",
+							"jsont::Message::End"
+						]
+					},
+					"inputDataExample": "{\"stats\": {\"matches\": 4, \"matched_lines\": 3, \"bytes_searched\": 418}}",
+					"outputDataExample": "{\"type\":\"end\",\"data\":{\"path\":{\"text\":\"sherlock.txt\"},\"binary_offset\":null,\"stats\":{\"elapsed\":{\"secs\":0,\"nanos\":12345,\"human\":\"...\"},\"searches\":1,\"searches_with_match\":1,\"bytes_searched\":418,\"bytes_printed\":...}}"
+				},
+				{
+					"simStepId": "3e5d6701-2f59-44c0-b928-99a95f0a22f9",
+					"diagramNodeId": "",
+					"simStepLabel": "Flow 2 - JSON Output: Write Final JSON Line to stdout",
+					"simStepDescription": "The final serialized `end` message is written as a single line to the standard output, concluding the JSON stream for that particular file search.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/json.rs",
+						"startLine": "864",
+						"endLine": "876",
+						"relevantVariables": [
+							"JSON",
+							"write_message"
+						]
+					},
+					"inputDataExample": "{\"json_string\": \"{\\\"type\\\":\\\"end\\\",\\\"data\\\":{...}}\\n\"}",
+					"outputDataExample": "{\"json_string\": \"{\\\"type\\\":\\\"end\\\",\\\"data\\\":{...}}\\n\"}"
+				}
+			],
+			"description": "<ul><li>- Display contextual lines around matches with <code>-A</code> (after), <code>-B</code> (before), and <code>-C</code> (context) flags</li><li>- Show line numbers (<code>-n</code>) and column numbers (<code>--column</code>) for each match to easily locate results</li><li>- Output results in a machine-readable JSON Lines format using <code>--json</code> for integration with other tools and scripts</li><li>- This functionality is handled by different <code>Printer</code> implementations (<code>Standard</code>, <code>JSON</code>, <code>Summary</code>) in the <code>crates/printer</code> crate</li></ul>",
+			"simulationNodesAndEdges": {
+				"d48d9d48-4e13-4dce-8fe6-b2346af1a6f1": {
+					"simStepIds": [
+						"aaf4906a-6ce5-4590-aaae-1baaa1b68131"
+					]
+				},
+				"10744c57-f84c-492e-b79f-784999aee8df": {
+					"simStepIds": [
+						"ff303172-79ee-466d-a025-3e7cb3b8bd1f"
+					]
+				},
+				"c47986cb-26b4-49cc-ab66-12d7070bccb7": {
+					"simStepIds": [
+						"9eec98ce-5973-4486-ad24-908bd31cb6ee"
+					]
+				},
+				"4a8f3082-dae3-4d64-b8cc-5daa3388cf07": {
+					"simStepIds": [
+						"09287ee8-73a7-4757-b92d-68d88304d0d2"
+					]
+				},
+				"6e81146c-872e-4c4c-803e-0baaece5085f": {
+					"simStepIds": [
+						"0bf34798-9586-4200-8372-916999070ba2"
+					]
+				},
+				"33cc7b78-df88-4d09-8f65-a10685c61434": {
+					"simStepIds": [
+						"c587fa94-e164-4f06-a7b3-c8794944667e"
+					]
+				},
+				"2eab1465-119d-480b-bae1-17b028327783": {
+					"simStepIds": [
+						"a65ca555-1efc-4aa6-9981-0bee62fd0660"
+					]
+				},
+				"df602689-8a7a-482d-9af0-5b7dea47b7af": {
+					"simStepIds": [
+						"a2b666ba-eafd-4092-987b-e08bb9144423"
+					]
+				},
+				"eced0960-84f0-4891-a161-39ce420e3eb4": {
+					"simStepIds": [
+						"c02930b0-acb3-4acb-82aa-f12fd73c7958"
+					]
+				},
+				"f74e6869-9dfb-4ab5-b418-eee1967ff1b7": {
+					"simStepIds": [
+						"58734a8a-0dea-4e6c-8a97-10fb4edbc556"
+					]
+				},
+				"739d06fc-85bf-49d2-92d0-b457891a3997": {
+					"simStepIds": [
+						"905e58a3-7fef-4fbb-8262-b20e2f13f95b"
+					]
+				},
+				"87dcc549-2a4f-4962-a82c-435e36134495": {
+					"simStepIds": [
+						"6657886e-26ea-4991-95ed-deb42a2defce"
+					]
+				},
+				"ab2ae6b3-1a52-4b69-9e30-138f9abca118": {
+					"simStepIds": [
+						"3e85aa42-d59d-48b9-9cd6-705aebf5f270"
+					]
+				},
+				"759cf0b4-c2e6-4460-b3fc-fe02917bbff5": {
+					"simStepIds": [
+						"f1fd38a9-0707-40a4-870f-957bd40b166a"
+					]
+				},
+				"f1ec947f-db2a-4a33-a6ee-cc741bdf2bc6": {
+					"simStepIds": [
+						"e0dee126-27b6-4bf2-be62-8c5cb2e2bdc6"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "StandardBuilder, JSONBuilder, context, printer",
+			"generationPrompt": "Customize search result output with context, line/column numbers, and JSON",
+			"generationKeywords": "StandardBuilder, JSONBuilder, context, printer"
+		},
+		"Utilize the PCRE2 regex engine for advanced features like look-around and backreferences": {
+			"name": "Utilize the PCRE2 regex engine for advanced features like look-around and backreferences",
+			"simSteps": [
+				{
+					"simStepId": "b001bc82-d7e1-49ab-a45d-63ffedf1c538",
+					"diagramNodeId": "4ec77cd0-0718-4dc0-b655-1da844ab75e4",
+					"simStepLabel": "1. Parse `--pcre2` Command-Line Flag",
+					"simStepDescription": "The user executes `ripgrep` with the `-P` or `--pcre2` flag to enable the PCRE2 regex engine. The flag parsing logic identifies this switch and updates the application's internal argument configuration.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "5375",
+						"endLine": "5381",
+						"relevantVariables": [
+							"Flag",
+							"PCRE2",
+							"update",
+							"args",
+							"EngineChoice::PCRE2"
+						]
+					},
+					"inputDataExample": "{\"command\": \"rg\", \"args\": [\"-P\", \"(?<=<li>)item\", \"index.html\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"engine\": \"PCRE2\"}}"
+				},
+				{
+					"simStepId": "41560cc1-7be4-4776-aa80-28b666b2856d",
+					"diagramNodeId": "bd08bc31-79b5-41c4-b72f-1f982dbf6c67",
+					"simStepLabel": "2. Transmit Parsed Engine Choice",
+					"simStepDescription": "The parsed arguments, now indicating the user's choice to use the PCRE2 engine, are passed from the low-level argument parser to the high-level argument handler for further processing.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "374",
+						"endLine": "374",
+						"relevantVariables": [
+							"EngineChoice::PCRE2"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"engine\": \"PCRE2\"}}",
+					"outputDataExample": "{\"LowArgs\": {\"engine\": \"PCRE2\"}}"
+				},
+				{
+					"simStepId": "74cdd5d3-6b51-4c17-9dbe-7749bab1fe82",
+					"diagramNodeId": "8c0413a7-6389-4cf3-b267-6c20b31e8f41",
+					"simStepLabel": "3. Select PCRE2 Matcher",
+					"simStepDescription": "Based on the `EngineChoice::PCRE2` value in the arguments, the application's logic branches to a specific function responsible for constructing a regex matcher using the PCRE2 engine. The `auto` option also exists, which would try the default engine first and fall back to PCRE2 on compilation failure.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "370",
+						"endLine": "386",
+						"relevantVariables": [
+							"matcher",
+							"self.engine",
+							"EngineChoice::PCRE2",
+							"self.matcher_pcre2()"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"engine\": \"PCRE2\"}}",
+					"outputDataExample": "{\"function_call\": \"self.matcher_pcre2()\"}"
+				},
+				{
+					"simStepId": "6bdeb4e1-c75c-491a-9a32-0d8b1a923323",
+					"diagramNodeId": "e5f83134-7c9e-4b1e-9fe6-11442cc8ada6",
+					"simStepLabel": "4. Forward Patterns to PCRE2 Builder",
+					"simStepDescription": "The regex patterns and other configuration options (like case sensitivity) are passed to the PCRE2 matcher builder function.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "415",
+						"endLine": "415",
+						"relevantVariables": [
+							"matcher_pcre2"
+						]
+					},
+					"inputDataExample": "{\"patterns\": [\"(?<=<li>)item\"], \"case_sensitive\": true, \"jit_enabled\": true}",
+					"outputDataExample": "{\"patterns\": [\"(?<=<li>)item\"], \"case_sensitive\": true, \"jit_enabled\": true}"
+				},
+				{
+					"simStepId": "62233f98-5f45-4d39-b8ef-c973da11c758",
+					"diagramNodeId": "b9bd4cec-b0f5-4d8d-bd5f-d7b1f9ad1969",
+					"simStepLabel": "5. Configure and Build PCRE2 Matcher",
+					"simStepDescription": "The `grep-pcre2` crate's `RegexMatcherBuilder` is instantiated and configured. Options such as JIT (Just-In-Time) compilation are enabled if available to improve performance. The builder then compiles the provided regex patterns into a usable `RegexMatcher` instance.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "418",
+						"endLine": "443",
+						"relevantVariables": [
+							"builder",
+							"grep::pcre2::RegexMatcherBuilder",
+							"jit_if_available",
+							"builder.build_many",
+							"PatternMatcher::PCRE2"
+						]
+					},
+					"inputDataExample": "{\"patterns\": [\"(?<=<li>)item\"], \"fixed_strings\": false, \"case_mode\": \"Sensitive\", \"jit_if_available\": true}",
+					"outputDataExample": "{\"PatternMatcher\": \"PCRE2(RegexMatcher)\"}"
+				},
+				{
+					"simStepId": "2d7b834e-8129-49d6-a0a9-9e6856693240",
+					"diagramNodeId": "5f587f6a-71bd-43ec-8897-c472b079ccbb",
+					"simStepLabel": "6. Propagate Compiled Matcher",
+					"simStepDescription": "The compiled PCRE2 matcher, wrapped in a `PatternMatcher` enum, is returned to the main search logic to be used by the search worker.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "198",
+						"endLine": "198",
+						"relevantVariables": [
+							"PatternMatcher::PCRE2"
+						]
+					},
+					"inputDataExample": "{\"PatternMatcher\": \"PCRE2(RegexMatcher)\"}",
+					"outputDataExample": "{\"PatternMatcher\": \"PCRE2(RegexMatcher)\"}"
+				},
+				{
+					"simStepId": "ba7e0d80-75c9-474f-aad3-ee3d141b6ca7",
+					"diagramNodeId": "83de0dc6-071d-4f66-ae7f-3fef41b2fd41",
+					"simStepLabel": "7. Dispatch Search to PCRE2 Implementation",
+					"simStepDescription": "The search worker receives the file path to be searched and the compiled matcher. It checks the `PatternMatcher` enum variant and dispatches the search call to the function that uses the PCRE2 `RegexMatcher` implementation.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "344",
+						"endLine": "345",
+						"relevantVariables": [
+							"self.matcher",
+							"PCRE2(ref m)",
+							"search_path"
+						]
+					},
+					"inputDataExample": "{\"matcher\": \"PatternMatcher::PCRE2(instance)\", \"path\": \"index.html\"}",
+					"outputDataExample": "{\"result\": \"search_path(pcre2_matcher, ...)\"}"
+				},
+				{
+					"simStepId": "0c7a5f6f-7e72-467f-a7fc-441d1d90276b",
+					"diagramNodeId": "b9bf9f98-f6b7-469a-8e6d-9a6f874ad69b",
+					"simStepLabel": "8. Execute Search",
+					"simStepDescription": "The generic searcher function is called, passing the specific PCRE2 matcher instance, the file path, and a 'sink' object responsible for handling and printing matches.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "382",
+						"endLine": "382",
+						"relevantVariables": [
+							"searcher.search_path"
+						]
+					},
+					"inputDataExample": "{\"matcher\": \"pcre2_matcher_instance\", \"path\": \"index.html\", \"sink\": \"StandardSink\"}",
+					"outputDataExample": "{\"matcher\": \"pcre2_matcher_instance\", \"path\": \"index.html\", \"sink\": \"StandardSink\"}"
+				},
+				{
+					"simStepId": "6a0d0b01-cff5-447b-9126-9882fee3297f",
+					"diagramNodeId": "1b8df61d-c161-4bb7-8f36-7b60820c8c77",
+					"simStepLabel": "9. Find Matches in File",
+					"simStepDescription": "The searcher reads the file's content and uses the provided PCRE2 matcher's `find_at` method (from the `grep-matcher` trait) to identify occurrences of the pattern. Because PCRE2 is being used, advanced features like the look-behind `(?<=<li>)` in the pattern are correctly processed.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/pcre2/src/matcher.rs",
+						"startLine": "228",
+						"endLine": "253",
+						"relevantVariables": [
+							"Matcher",
+							"find_at"
+						]
+					},
+					"inputDataExample": "{\"file_content\": \"<ul>\\n<li>item 1</li>\\n</ul>\", \"pattern\": \"(?<=<li>)item\"}",
+					"outputDataExample": "{\"match\": {\"start\": 9, \"end\": 13, \"text\": \"item\"}}"
+				}
+			],
+			"description": "<ul><li>- Opt-in to using the powerful PCRE2 regex engine with the <code>-P</code>/<code>--pcre2</code> flag</li><li>- Enables support for advanced regex features not available in the default engine, such as look-arounds (<code>(?<=</li><li>)</code>) and backreferences (<code>\\1</code>)</li><li>- The <code>crates/pcre2</code> crate provides the <code>RegexMatcher</code> implementation for this feature, which is conditionally compiled</li><li>- The <code>--auto-hybrid-regex</code> flag can automatically switch to PCRE2 if the pattern requires its advanced features</li></ul>",
+			"simulationNodesAndEdges": {
+				"4ec77cd0-0718-4dc0-b655-1da844ab75e4": {
+					"simStepIds": [
+						"b001bc82-d7e1-49ab-a45d-63ffedf1c538"
+					]
+				},
+				"8c0413a7-6389-4cf3-b267-6c20b31e8f41": {
+					"simStepIds": [
+						"74cdd5d3-6b51-4c17-9dbe-7749bab1fe82"
+					]
+				},
+				"b9bd4cec-b0f5-4d8d-bd5f-d7b1f9ad1969": {
+					"simStepIds": [
+						"62233f98-5f45-4d39-b8ef-c973da11c758"
+					]
+				},
+				"83de0dc6-071d-4f66-ae7f-3fef41b2fd41": {
+					"simStepIds": [
+						"ba7e0d80-75c9-474f-aad3-ee3d141b6ca7"
+					]
+				},
+				"1b8df61d-c161-4bb7-8f36-7b60820c8c77": {
+					"simStepIds": [
+						"6a0d0b01-cff5-447b-9126-9882fee3297f"
+					]
+				},
+				"bd08bc31-79b5-41c4-b72f-1f982dbf6c67": {
+					"simStepIds": [
+						"41560cc1-7be4-4776-aa80-28b666b2856d"
+					]
+				},
+				"e5f83134-7c9e-4b1e-9fe6-11442cc8ada6": {
+					"simStepIds": [
+						"6bdeb4e1-c75c-491a-9a32-0d8b1a923323"
+					]
+				},
+				"5f587f6a-71bd-43ec-8897-c472b079ccbb": {
+					"simStepIds": [
+						"2d7b834e-8129-49d6-a0a9-9e6856693240"
+					]
+				},
+				"b9bf9f98-f6b7-469a-8e6d-9a6f874ad69b": {
+					"simStepIds": [
+						"0c7a5f6f-7e72-467f-a7fc-441d1d90276b"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "pcre2, auto-hybrid-regex, PCRE2(RegexMatcher), --pcre2",
+			"generationPrompt": "Utilize the PCRE2 regex engine for advanced features like look-around and backreferences",
+			"generationKeywords": "pcre2, auto-hybrid-regex, PCRE2(RegexMatcher), --pcre2"
+		},
+		"Search within compressed files and use preprocessors for custom formats": {
+			"name": "Search within compressed files and use preprocessors for custom formats",
+			"simSteps": [
+				{
+					"simStepId": "c29476dd-d067-4661-be7e-e18c3e7ba67b",
+					"diagramNodeId": "6950d682-71a7-4969-af34-b22455c841b5",
+					"simStepLabel": "Compressed File Search: Parse -z/--search-zip flag",
+					"simStepDescription": "The command-line arguments are parsed. When the `-z` or `--search-zip` flag is present, it's identified and stored in the configuration for later use. This flag signals that ripgrep should attempt to decompress files before searching them.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "6062",
+						"endLine": "6081",
+						"relevantVariables": [
+							"SearchZip",
+							"name_short",
+							"name_long"
+						]
+					},
+					"inputDataExample": "{\"argv\": [\"rg\", \"-z\", \"Sherlock\", \"sherlock.gz\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"search_zip\": true}}"
+				},
+				{
+					"simStepId": "4083ea4d-062d-4897-8fad-f1ad1b4ebc26",
+					"diagramNodeId": "e610fcdb-7b3d-4c76-a5a7-bf2a9a036842",
+					"simStepLabel": "Compressed File Search: Transmit Parsed Arguments",
+					"simStepDescription": "The parsed flag `search_zip: true` is passed internally as part of the low-level application arguments, which will be used to configure the search behavior.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "702",
+						"endLine": "702",
+						"relevantVariables": [
+							"self.search_zip"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"search_zip\": true}}",
+					"outputDataExample": "{\"LowArgs\": {\"search_zip\": true}}"
+				},
+				{
+					"simStepId": "03cde253-45d7-4216-b089-825d6fce5ec3",
+					"diagramNodeId": "5e7f3e2a-3045-4c34-9557-d2da69c2bfbd",
+					"simStepLabel": "Compressed File Search: Configure SearchWorkerBuilder for decompression",
+					"simStepDescription": "The `SearchWorkerBuilder` is configured based on the parsed arguments. The `search_zip` method is called to enable the decompression feature in the search worker's configuration.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "119",
+						"endLine": "125",
+						"relevantVariables": [
+							"search_zip",
+							"self.config.search_zip"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"search_zip\": true}}",
+					"outputDataExample": "{\"SearchWorkerBuilder\": {\"config\": {\"search_zip\": true}}}"
+				},
+				{
+					"simStepId": "1a8296ec-9bfa-4445-9bf1-4ed59a570087",
+					"diagramNodeId": "649d1671-efd9-4933-94b7-c80ec8f8f603",
+					"simStepLabel": "Compressed File Search: Pass configured SearchWorker",
+					"simStepDescription": "The configured `SearchWorker` instance, with decompression enabled, is prepared for executing the search over the filesystem.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "705",
+						"endLine": "705",
+						"relevantVariables": [
+							"builder.build(matcher, searcher, printer)"
+						]
+					},
+					"inputDataExample": "{\"SearchWorker\": {\"config\": {\"search_zip\": true}}}",
+					"outputDataExample": "{\"SearchWorker\": {\"config\": {\"search_zip\": true}}}"
+				},
+				{
+					"simStepId": "62181f2a-eced-4924-abc4-e51841f7335c",
+					"diagramNodeId": "f2367165-3be5-454c-beec-9c4c3f19aeaa",
+					"simStepLabel": "Compressed File Search: Check if file path matches a decompression rule",
+					"simStepDescription": "For each file found, the `SearchWorker` checks if it should be decompressed. This is done by the `DecompressionMatcher`, which checks the file path against a set of globs associated with known decompression commands (e.g., `*.gz` for `gzip`).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/cli/src/decompress.rs",
+						"startLine": "191",
+						"endLine": "193",
+						"relevantVariables": [
+							"has_command",
+							"self.globs.is_match(path)"
+						]
+					},
+					"inputDataExample": "{\"path\": \"tests/data/sherlock.gz\"}",
+					"outputDataExample": "{\"is_match\": true}"
+				},
+				{
+					"simStepId": "cbcca008-6917-456e-84ad-6ac96aee2929",
+					"diagramNodeId": "b7dd50a5-16ab-4e4a-a2b1-30d073f9a865",
+					"simStepLabel": "Compressed File Search: Signal to decompress file",
+					"simStepDescription": "The boolean result from the check determines whether the file will be passed to a decompressor or read directly. A `true` value triggers the decompression workflow.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "275",
+						"endLine": "279",
+						"relevantVariables": [
+							"should_decompress",
+							"self.config.search_zip",
+							"self.decomp_builder.get_matcher().has_command(path)"
+						]
+					},
+					"inputDataExample": "{\"should_decompress\": true}",
+					"outputDataExample": "{\"should_decompress\": true}"
+				},
+				{
+					"simStepId": "ed429283-8a30-4f1b-ab61-5346e35d6f11",
+					"diagramNodeId": "daecd6d5-6039-4085-b8b7-4bdc80524390",
+					"simStepLabel": "Compressed File Search: Build DecompressionReader to run decompressor",
+					"simStepDescription": "A `DecompressionReader` is constructed. This involves finding the correct decompression command (e.g., `gzip`), spawning it as a child process, and preparing to read from its standard output.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/cli/src/decompress.rs",
+						"startLine": "221",
+						"endLine": "245",
+						"relevantVariables": [
+							"build",
+							"self.matcher.command(path)",
+							"cmd",
+							"self.command_builder.build(&mut cmd)"
+						]
+					},
+					"inputDataExample": "{\"path\": \"tests/data/sherlock.gz\"}",
+					"outputDataExample": "{\"DecompressionReader\": \"streaming output of 'gzip -dc tests/data/sherlock.gz'\"}"
+				},
+				{
+					"simStepId": "2d904b7f-b736-4eb7-b961-6237216bbc50",
+					"diagramNodeId": "d1f0e123-d681-4008-9b8e-70b2e9dd1a61",
+					"simStepLabel": "Compressed File Search: Stream decompressed data",
+					"simStepDescription": "The decompressed content of the file is streamed from the child process's stdout to the searcher component.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/cli/src/decompress.rs",
+						"startLine": "388",
+						"endLine": "392",
+						"relevantVariables": [
+							"DecompressionReader::read",
+							"rdr.read(buf)"
+						]
+					},
+					"inputDataExample": "{\"stdout_chunk\": \"For the Doctor Watsons of this world, as opposed to the Sherlock\\n\"}",
+					"outputDataExample": "{\"stdout_chunk\": \"For the Doctor Watsons of this world, as opposed to the Sherlock\\n\"}"
+				},
+				{
+					"simStepId": "c4c60c43-8605-42f6-90b5-a22802789740",
+					"diagramNodeId": "e1234c16-9d04-4f80-b296-bc44531e2631",
+					"simStepLabel": "Compressed File Search: Search the decompressed stream",
+					"simStepDescription": "The `searcher` reads the decompressed data from the stream, line by line, and applies the regex pattern to find matches. Matched lines are then sent to the printer for output.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "312",
+						"endLine": "318",
+						"relevantVariables": [
+							"self.search_reader",
+							"path",
+							"rdr"
+						]
+					},
+					"inputDataExample": "{\"decompressed_line\": \"For the Doctor Watsons of this world, as opposed to the Sherlock\"}",
+					"outputDataExample": "{\"match\": {\"file\": \"sherlock.gz\", \"line\": 1, \"text\": \"...Sherlock...\"}}"
+				},
+				{
+					"simStepId": "7d379ed5-539b-41c8-bcbe-5d9fa4bdd8f5",
+					"diagramNodeId": "7362a4c6-d940-422f-a0d2-3e49105ac6f4",
+					"simStepLabel": "Preprocessor Search: Parse --pre and --pre-glob flags",
+					"simStepDescription": "The command-line arguments are parsed. When `--pre <CMD>` is used, the command is stored. If `--pre-glob` is used, the glob patterns are also stored. These tell ripgrep to process certain files with an external command before searching.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "5528",
+						"endLine": "5536",
+						"relevantVariables": [
+							"Pre",
+							"update",
+							"v",
+							"args.pre"
+						]
+					},
+					"inputDataExample": "{\"argv\": [\"rg\", \"--pre\", \"pdftotext\", \"--pre-glob\", \"*.pdf\", \"pattern\", \"doc.pdf\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"pre\": \"pdftotext\", \"pre_glob\": [\"*.pdf\"]}}"
+				},
+				{
+					"simStepId": "0c16b679-fb65-4ba2-8122-0f8587bed00d",
+					"diagramNodeId": "d66acde4-7c31-485a-ad90-d307e992c854",
+					"simStepLabel": "Preprocessor Search: Transmit Parsed Arguments",
+					"simStepDescription": "The parsed preprocessor command and associated globs are passed internally as arguments to configure the search worker.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "700",
+						"endLine": "701",
+						"relevantVariables": [
+							"self.pre",
+							"self.pre_globs"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"pre\": \"pdftotext\", \"pre_glob\": [\"*.pdf\"]}}",
+					"outputDataExample": "{\"LowArgs\": {\"pre\": \"pdftotext\", \"pre_glob\": [\"*.pdf\"]}}"
+				},
+				{
+					"simStepId": "fecebcee-2687-4ad2-bd79-0604a4b8f040",
+					"diagramNodeId": "dfb4c43e-3ec9-43ba-a616-bd57f6674cd8",
+					"simStepLabel": "Preprocessor Search: Set preprocessor in SearchWorkerBuilder",
+					"simStepDescription": "The `SearchWorkerBuilder` is configured with the preprocessor command. The path to the command is resolved to an absolute path for security reasons. This ensures that an arbitrary executable in the current directory isn't run by mistake.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "94",
+						"endLine": "103",
+						"relevantVariables": [
+							"preprocessor",
+							"grep::cli::resolve_binary(prog)",
+							"self.config.preprocessor"
+						]
+					},
+					"inputDataExample": "{\"pre_command_path\": \"pdftotext\"}",
+					"outputDataExample": "{\"SearchWorkerBuilder\": {\"config\": {\"preprocessor\": \"/usr/bin/pdftotext\"}}}"
+				},
+				{
+					"simStepId": "a1c58ae9-1849-4d4f-829e-bac1dee284a2",
+					"diagramNodeId": "819d3118-b828-47c2-8db4-db53d31d4602",
+					"simStepLabel": "Preprocessor Search: Pass configured SearchWorker",
+					"simStepDescription": "The configured `SearchWorker` instance, with the preprocessor command set, is prepared for executing the search.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "705",
+						"endLine": "705",
+						"relevantVariables": [
+							"builder.build(matcher, searcher, printer)"
+						]
+					},
+					"inputDataExample": "{\"SearchWorker\": {\"config\": {\"preprocessor\": \"/usr/bin/pdftotext\"}}}",
+					"outputDataExample": "{\"SearchWorker\": {\"config\": {\"preprocessor\": \"/usr/bin/pdftotext\"}}}"
+				},
+				{
+					"simStepId": "a6afeacb-02c1-483d-acff-a916be15f12b",
+					"diagramNodeId": "86edb909-6f63-4907-bb50-60f871024063",
+					"simStepLabel": "Preprocessor Search: Check if file should be preprocessed",
+					"simStepDescription": "For each file, the `SearchWorker` checks if it should be preprocessed. This is true if a preprocessor command is set and either no `--pre-glob` is given (meaning all files are preprocessed) or the file path matches one of the provided globs.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "283",
+						"endLine": "291",
+						"relevantVariables": [
+							"should_preprocess",
+							"self.config.preprocessor",
+							"self.config.preprocessor_globs"
+						]
+					},
+					"inputDataExample": "{\"path\": \"invoices/2023-12.pdf\"}",
+					"outputDataExample": "{\"should_preprocess\": true}"
+				},
+				{
+					"simStepId": "ecc26b7d-566e-48e3-8605-6d8157c8cfe0",
+					"diagramNodeId": "86cb2db8-78ff-4673-a44f-1e65bcff3c23",
+					"simStepLabel": "Preprocessor Search: Signal to preprocess file",
+					"simStepDescription": "A `true` result from the check triggers the preprocessing workflow for the given file.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "283",
+						"endLine": "291",
+						"relevantVariables": [
+							"should_preprocess"
+						]
+					},
+					"inputDataExample": "{\"should_preprocess\": true}",
+					"outputDataExample": "{\"should_preprocess\": true}"
+				},
+				{
+					"simStepId": "93ca8f43-acd3-4f93-8b5f-d6519f91c142",
+					"diagramNodeId": "7350fe65-16a7-4f96-8d68-53cd4463483e",
+					"simStepLabel": "Preprocessor Search: Execute preprocessor command for the file",
+					"simStepDescription": "The preprocessor command is executed as a child process. The file path is passed as an argument, and the file's contents are piped to the process's standard input.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "298",
+						"endLine": "301",
+						"relevantVariables": [
+							"search_preprocessor",
+							"bin",
+							"cmd",
+							"std::process::Command::new(bin)"
+						]
+					},
+					"inputDataExample": "{\"path\": \"invoices/2023-12.pdf\", \"preprocessor\": \"/usr/bin/pdftotext\"}",
+					"outputDataExample": "{\"CommandReader\": \"streaming output of 'pdftotext invoices/2023-12.pdf -'\"}"
+				},
+				{
+					"simStepId": "f548b28d-ab54-4a7c-9535-51ef8ed4deb4",
+					"diagramNodeId": "1eea7ee6-c491-4846-b4d4-6330921830f1",
+					"simStepLabel": "Preprocessor Search: Stream preprocessed data",
+					"simStepDescription": "The text output from the preprocessor's stdout is captured and streamed to ripgrep's searcher component.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "303",
+						"endLine": "311",
+						"relevantVariables": [
+							"self.command_builder.build(&mut cmd)",
+							"rdr"
+						]
+					},
+					"inputDataExample": "{\"stdout_chunk\": \"Invoice #12345\\nTotal: $99.99\\n\"}",
+					"outputDataExample": "{\"stdout_chunk\": \"Invoice #12345\\nTotal: $99.99\\n\"}"
+				},
+				{
+					"simStepId": "47746894-69db-4cbd-a200-99b4c83720e4",
+					"diagramNodeId": "d89113c0-1afc-40f8-935f-5818ce5ed080",
+					"simStepLabel": "Preprocessor Search: Search the preprocessed stream",
+					"simStepDescription": "The searcher reads the preprocessed text from the stream and applies the regex pattern to find matches. The original file path is used when printing the results.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/search.rs",
+						"startLine": "312",
+						"endLine": "318",
+						"relevantVariables": [
+							"self.search_reader",
+							"path",
+							"rdr"
+						]
+					},
+					"inputDataExample": "{\"preprocessed_line\": \"Invoice #12345\"}",
+					"outputDataExample": "{\"match\": {\"file\": \"invoices/2023-12.pdf\", \"line\": 1, \"text\": \"Invoice #12345\"}}"
+				}
+			],
+			"description": "<ul><li>- Search inside gzip, bzip2, xz, lz4, brotli, and zstd compressed files seamlessly with the <code>-z</code>/<code>--search-zip</code> flag</li><li>- This functionality is implemented in <code>crates/cli/decompress</li><li>rs</code> by shelling out to external decompression tools</li><li>- Define a pre-processor command with <code>--pre <CMD></code> to transform files before searching (e</li><li>g</li><li>, using <code>pdftotext</code> for PDFs), extending ripgrep's capabilities to any text-convertible format</li><li>- The <code>SearchWorker</code> in <code>crates/core/search</li><li>rs</code> orchestrates whether to decompress, preprocess, or read a file directly</li></ul>",
+			"simulationNodesAndEdges": {
+				"6950d682-71a7-4969-af34-b22455c841b5": {
+					"simStepIds": [
+						"c29476dd-d067-4661-be7e-e18c3e7ba67b"
+					]
+				},
+				"5e7f3e2a-3045-4c34-9557-d2da69c2bfbd": {
+					"simStepIds": [
+						"03cde253-45d7-4216-b089-825d6fce5ec3"
+					]
+				},
+				"f2367165-3be5-454c-beec-9c4c3f19aeaa": {
+					"simStepIds": [
+						"62181f2a-eced-4924-abc4-e51841f7335c"
+					]
+				},
+				"daecd6d5-6039-4085-b8b7-4bdc80524390": {
+					"simStepIds": [
+						"ed429283-8a30-4f1b-ab61-5346e35d6f11"
+					]
+				},
+				"e1234c16-9d04-4f80-b296-bc44531e2631": {
+					"simStepIds": [
+						"c4c60c43-8605-42f6-90b5-a22802789740"
+					]
+				},
+				"7362a4c6-d940-422f-a0d2-3e49105ac6f4": {
+					"simStepIds": [
+						"7d379ed5-539b-41c8-bcbe-5d9fa4bdd8f5"
+					]
+				},
+				"dfb4c43e-3ec9-43ba-a616-bd57f6674cd8": {
+					"simStepIds": [
+						"fecebcee-2687-4ad2-bd79-0604a4b8f040"
+					]
+				},
+				"86edb909-6f63-4907-bb50-60f871024063": {
+					"simStepIds": [
+						"a6afeacb-02c1-483d-acff-a916be15f12b"
+					]
+				},
+				"7350fe65-16a7-4f96-8d68-53cd4463483e": {
+					"simStepIds": [
+						"93ca8f43-acd3-4f93-8b5f-d6519f91c142"
+					]
+				},
+				"d89113c0-1afc-40f8-935f-5818ce5ed080": {
+					"simStepIds": [
+						"47746894-69db-4cbd-a200-99b4c83720e4"
+					]
+				},
+				"e610fcdb-7b3d-4c76-a5a7-bf2a9a036842": {
+					"simStepIds": [
+						"4083ea4d-062d-4897-8fad-f1ad1b4ebc26"
+					]
+				},
+				"649d1671-efd9-4933-94b7-c80ec8f8f603": {
+					"simStepIds": [
+						"1a8296ec-9bfa-4445-9bf1-4ed59a570087"
+					]
+				},
+				"b7dd50a5-16ab-4e4a-a2b1-30d073f9a865": {
+					"simStepIds": [
+						"cbcca008-6917-456e-84ad-6ac96aee2929"
+					]
+				},
+				"d1f0e123-d681-4008-9b8e-70b2e9dd1a61": {
+					"simStepIds": [
+						"2d904b7f-b736-4eb7-b961-6237216bbc50"
+					]
+				},
+				"d66acde4-7c31-485a-ad90-d307e992c854": {
+					"simStepIds": [
+						"0c16b679-fb65-4ba2-8122-0f8587bed00d"
+					]
+				},
+				"819d3118-b828-47c2-8db4-db53d31d4602": {
+					"simStepIds": [
+						"a1c58ae9-1849-4d4f-829e-bac1dee284a2"
+					]
+				},
+				"86cb2db8-78ff-4673-a44f-1e65bcff3c23": {
+					"simStepIds": [
+						"ecc26b7d-566e-48e3-8605-6d8157c8cfe0"
+					]
+				},
+				"1eea7ee6-c491-4846-b4d4-6330921830f1": {
+					"simStepIds": [
+						"f548b28d-ab54-4a7c-9535-51ef8ed4deb4"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "search-zip, DecompressionReader, preprocessor, --pre",
+			"generationPrompt": "Search within compressed files and use preprocessors for custom formats",
+			"generationKeywords": "search-zip, DecompressionReader, preprocessor, --pre"
+		},
+		"Replace matched text in the output with new text, including capture group references": {
+			"name": "Replace matched text in the output with new text, including capture group references",
+			"simSteps": [
+				{
+					"simStepId": "737b4594-f05a-4364-aa55-1ef7fab5ae40",
+					"diagramNodeId": "9a174586-50ee-48d2-b47d-c3911a03119e",
+					"simStepLabel": "Parse '--replace' Argument",
+					"simStepDescription": "The command-line interface parses the input arguments, identifying the `-r` or `--replace` flag and its associated replacement string. This string is stored in an arguments struct for later use.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "5967",
+						"endLine": "6036",
+						"relevantVariables": [
+							"struct Replace",
+							"impl Flag for Replace",
+							"update(v: FlagValue, args: &mut LowArgs)"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"rg\", \"(ticket)-(\\d+)\", \"-r\", \"item: $2, user: $1\", \"file.txt\"]}",
+					"outputDataExample": "{\"LowArgs\": {\"patterns\": [], \"replace\": \"item: $2, user: $1\", \"positional\": [\"(ticket)-(\\d+)\", \"file.txt\"]}}"
+				},
+				{
+					"simStepId": "43539604-968a-4968-a6c1-26ee641911cb",
+					"diagramNodeId": "3d0a7b6c-5fb7-49af-acd6-f7ed5e04465c",
+					"simStepLabel": "Transmit Parsed Arguments",
+					"simStepDescription": "The parsed replacement string is passed from the low-level argument parser to the high-level argument handler, which prepares configurations for other components like the printer.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "976",
+						"endLine": "1006",
+						"relevantVariables": [
+							"Patterns::from_lowargs"
+						]
+					},
+					"inputDataExample": "{\"LowArgs\": {\"replace\": \"item: $2, user: $1\"}}",
+					"outputDataExample": "{\"LowArgs\": {\"replace\": \"item: $2, user: $1\"}}"
+				},
+				{
+					"simStepId": "87174d16-5d77-402d-b09b-bcd88b34b5de",
+					"diagramNodeId": "5d83f4af-db25-4c71-8317-27d5cbf2da80",
+					"simStepLabel": "Configure Printer with Replacement String",
+					"simStepDescription": "The high-level argument handler uses the replacement string to configure the `StandardBuilder`. The builder stores the replacement string in its configuration, which will be used to create the printer sink.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "620",
+						"endLine": "628",
+						"relevantVariables": [
+							"self.replace",
+							"builder.replacement"
+						]
+					},
+					"inputDataExample": "{\"HiArgs\": {\"replace\": \"item: $2, user: $1\"}}",
+					"outputDataExample": "{\"StandardBuilder\": {\"config\": {\"replacement\": \"[105, 116, 101, 109, 58, 32, 36, 50, 44, 32, 117, 115, 101, 114, 58, 32, 36, 49]\"}}}"
+				},
+				{
+					"simStepId": "84a73e2d-c815-4663-8744-d398d2a607da",
+					"diagramNodeId": "e331d461-e40c-4ead-8f93-9bd36e1cdf0d",
+					"simStepLabel": "Pass Match Data to Printer Sink",
+					"simStepDescription": "As the searcher finds matches in a file, it sends each match result (as a `SinkMatch` object) to the printer's sink function for processing and output.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "776",
+						"endLine": "776",
+						"relevantVariables": [
+							"sink_match"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"bytes\": \"ticket-123\", \"line_number\": 1, \"absolute_byte_offset\": 0, \"matches\": [{\"start\": 0, \"end\": 10}]}}",
+					"outputDataExample": "{\"SinkMatch\": {\"bytes\": \"ticket-123\", \"line_number\": 1, \"absolute_byte_offset\": 0, \"matches\": [{\"start\": 0, \"end\": 10}]}}"
+				},
+				{
+					"simStepId": "bebc0274-fcfd-425d-91f2-160c6f551f30",
+					"diagramNodeId": "4ca89a94-e328-4aeb-8515-45ccb701cf74",
+					"simStepLabel": "Initiate Replacement Process in Sink",
+					"simStepDescription": "The printer sink receives the match data. It checks its configuration, sees that a replacement string is defined, and calls the `Replacer` utility to perform the substitution.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/standard.rs",
+						"startLine": "740",
+						"endLine": "758",
+						"relevantVariables": [
+							"replace",
+							"self.replacer.replace_all"
+						]
+					},
+					"inputDataExample": "{\"SinkMatch\": {\"bytes\": \"ticket-123\"}, \"Config\": {\"replacement\": \"item: $2, user: $1\"}}",
+					"outputDataExample": "{\"call_to\": \"self.replacer.replace_all\"}"
+				},
+				{
+					"simStepId": "b7497dbb-aa8f-42f9-a95e-ce7dbd1e9889",
+					"diagramNodeId": "816cc43f-51b4-407b-8df9-1d12d4fa167c",
+					"simStepLabel": "Transfer Data to Replacer Utility",
+					"simStepDescription": "The raw bytes of the matched line, the replacement string, and the matcher are passed to the `replace_all` method of the `Replacer` struct.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/util.rs",
+						"startLine": "50",
+						"endLine": "61",
+						"relevantVariables": [
+							"replace_all",
+							"haystack",
+							"replacement"
+						]
+					},
+					"inputDataExample": "{\"haystack\": \"ticket-123\", \"replacement\": \"item: $2, user: $1\", \"matcher\": \"...\"}",
+					"outputDataExample": "{\"haystack\": \"ticket-123\", \"replacement\": \"item: $2, user: $1\", \"matcher\": \"...\"}"
+				},
+				{
+					"simStepId": "d2bc60fd-f612-4d8a-84cd-e6047becc03b",
+					"diagramNodeId": "c3846db4-1ff4-4054-82c9-2f32f2c517f4",
+					"simStepLabel": "Interpolate Capture Groups",
+					"simStepDescription": "The `Replacer` iterates over each match and uses the `interpolate` utility. This function parses the replacement string for capture group references (e.g., `$1`, `$2`, `$name`), looks up the corresponding captured text from the current match, and builds the final substituted string.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/matcher/src/interpolate.rs",
+						"startLine": "7",
+						"endLine": "59",
+						"relevantVariables": [
+							"interpolate",
+							"replacement",
+							"append",
+							"find_cap_ref",
+							"dst"
+						]
+					},
+					"inputDataExample": "{\"replacement_template\": \"item: $2, user: $1\", \"captures\": {\"groups\": [{\"text\": \"ticket-123\"}, {\"text\": \"ticket\"}, {\"text\": \"123\"}]}}",
+					"outputDataExample": "{\"interpolated_bytes\": \"item: 123, user: ticket\"}"
+				},
+				{
+					"simStepId": "dff3d113-2348-452a-b637-8ac3dc89ef5c",
+					"diagramNodeId": "d27342b4-6373-4c8e-88ac-ba9fa43697f8",
+					"simStepLabel": "Return Interpolated String",
+					"simStepDescription": "The newly created string with substitutions is returned from the interpolation utility back to the `Replacer`, which stores it internally.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/util.rs",
+						"startLine": "112",
+						"endLine": "125",
+						"relevantVariables": [
+							"replacement",
+							"self.space"
+						]
+					},
+					"inputDataExample": "{\"interpolated_bytes\": \"item: 123, user: ticket\"}",
+					"outputDataExample": "{\"interpolated_bytes\": \"item: 123, user: ticket\"}"
+				},
+				{
+					"simStepId": "38b80c9b-104d-40c8-89f1-a859b0319f76",
+					"diagramNodeId": "3efaced4-f954-4e21-b403-6b6d4a6e2bc6",
+					"simStepLabel": "Write Replaced Output",
+					"simStepDescription": "The printer sink retrieves the final, replaced string from the `Replacer`. It then formats this string with any other required elements (like line numbers or file paths) and writes the result to the standard output stream.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/printer/src/util.rs",
+						"startLine": "190",
+						"endLine": "201",
+						"relevantVariables": [
+							"Sunk",
+							"from_sink_match",
+							"replacement.unwrap_or_else"
+						]
+					},
+					"inputDataExample": "{\"replacer_result\": \"item: 123, user: ticket\", \"line_number\": 1}",
+					"outputDataExample": "{\"stdout\": \"1:item: 123, user: ticket\\n\"}"
+				}
+			],
+			"description": "<ul><li>- Use the <code>-r</code>/<code>--replace</code> flag to substitute matched text in the printed output, useful for reformatting results</li><li>- The replacement string can reference capture groups by index (<code>$1</code>, <code>$2</code>) or by name (<code>$name</code>), allowing for powerful text transformations</li><li>- This feature does <strong>not</strong> modify files on disk; it only affects the output sent to stdout</li><li>- The replacement logic is handled by the <code>Replacer</code> utility within the <code>crates/printer</code> crate</li></ul>",
+			"simulationNodesAndEdges": {
+				"9a174586-50ee-48d2-b47d-c3911a03119e": {
+					"simStepIds": [
+						"737b4594-f05a-4364-aa55-1ef7fab5ae40"
+					]
+				},
+				"5d83f4af-db25-4c71-8317-27d5cbf2da80": {
+					"simStepIds": [
+						"87174d16-5d77-402d-b09b-bcd88b34b5de"
+					]
+				},
+				"4ca89a94-e328-4aeb-8515-45ccb701cf74": {
+					"simStepIds": [
+						"bebc0274-fcfd-425d-91f2-160c6f551f30"
+					]
+				},
+				"c3846db4-1ff4-4054-82c9-2f32f2c517f4": {
+					"simStepIds": [
+						"d2bc60fd-f612-4d8a-84cd-e6047becc03b"
+					]
+				},
+				"3efaced4-f954-4e21-b403-6b6d4a6e2bc6": {
+					"simStepIds": [
+						"38b80c9b-104d-40c8-89f1-a859b0319f76"
+					]
+				},
+				"3d0a7b6c-5fb7-49af-acd6-f7ed5e04465c": {
+					"simStepIds": [
+						"43539604-968a-4968-a6c1-26ee641911cb"
+					]
+				},
+				"e331d461-e40c-4ead-8f93-9bd36e1cdf0d": {
+					"simStepIds": [
+						"84a73e2d-c815-4663-8744-d398d2a607da"
+					]
+				},
+				"816cc43f-51b4-407b-8df9-1d12d4fa167c": {
+					"simStepIds": [
+						"b7497dbb-aa8f-42f9-a95e-ce7dbd1e9889"
+					]
+				},
+				"d27342b4-6373-4c8e-88ac-ba9fa43697f8": {
+					"simStepIds": [
+						"dff3d113-2348-452a-b637-8ac3dc89ef5c"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "replacement, Replacer, interpolate, -r",
+			"generationPrompt": "Replace matched text in the output with new text, including capture group references",
+			"generationKeywords": "replacement, Replacer, interpolate, -r"
+		},
+		"Customize behavior with a persistent configuration file": {
+			"name": "Customize behavior with a persistent configuration file",
+			"simSteps": [
+				{
+					"simStepId": "53335fc8-21d3-427d-a0bc-065331dd8455",
+					"diagramNodeId": "b74f4280-0b72-4063-9c21-580e6588b528",
+					"simStepLabel": "Start Argument Parsing",
+					"simStepDescription": "The application begins parsing command-line arguments. As part of this process, it checks whether it should load arguments from a configuration file before finalizing the configuration.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/parse.rs",
+						"startLine": "89",
+						"endLine": "91",
+						"relevantVariables": [
+							"low",
+							"parser"
+						]
+					},
+					"inputDataExample": "{\"command_line_args\": [\"rg\", \"Sherlock\", \"--context=2\"]}",
+					"outputDataExample": "{}"
+				},
+				{
+					"simStepId": "9c783d6b-041c-472b-8009-f9d7f05f409b",
+					"diagramNodeId": "6cbb2324-9bba-4b03-9472-b8e0fdb05fec",
+					"simStepLabel": "Invoke Configuration Loader",
+					"simStepDescription": "The main argument parser calls the configuration module to load any arguments specified in a config file.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/parse.rs",
+						"startLine": "94",
+						"endLine": "94",
+						"relevantVariables": [
+							"config_args",
+							"crate::flags::config::args"
+						]
+					},
+					"inputDataExample": "{}",
+					"outputDataExample": "{}"
+				},
+				{
+					"simStepId": "ee00687d-8740-4686-91dc-2c9b2d857807",
+					"diagramNodeId": "356bd94f-a94b-4fd5-bcca-b70c7ca4635a",
+					"simStepLabel": "Read RIPGREP_CONFIG_PATH Environment Variable",
+					"simStepDescription": "The configuration module checks for the `RIPGREP_CONFIG_PATH` environment variable to find the path to the configuration file. If the variable is not set or is empty, the process stops here, and no arguments are loaded.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "15",
+						"endLine": "21",
+						"relevantVariables": [
+							"config_path",
+							"std::env::var_os"
+						]
+					},
+					"inputDataExample": "{\"env_vars\": {\"RIPGREP_CONFIG_PATH\": \"/home/user/.ripgreprc\"}}",
+					"outputDataExample": "{\"config_path\": \"/home/user/.ripgreprc\"}"
+				},
+				{
+					"simStepId": "faaf3835-6ea8-4880-a5c8-c7d90cd5c161",
+					"diagramNodeId": "7445db58-4de9-4bf1-959f-6ed9ee4ef0d7",
+					"simStepLabel": "Pass Config Path to Parser",
+					"simStepDescription": "The retrieved file path is passed to the internal parsing function to be opened and read.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "26",
+						"endLine": "26",
+						"relevantVariables": [
+							"config_path",
+							"parse"
+						]
+					},
+					"inputDataExample": "{\"config_path\": \"/home/user/.ripgreprc\"}",
+					"outputDataExample": "{\"config_path\": \"/home/user/.ripgreprc\"}"
+				},
+				{
+					"simStepId": "5db838b5-8830-4636-bc22-193687d2fd6c",
+					"diagramNodeId": "73cf577a-892c-43a8-b6e1-0d653047705b",
+					"simStepLabel": "Open Config File",
+					"simStepDescription": "The `parse` function attempts to open the file at the specified path. If successful, it passes the file handle to the `parse_reader` function.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "61",
+						"endLine": "63",
+						"relevantVariables": [
+							"path",
+							"file",
+							"std::fs::File::open",
+							"parse_reader"
+						]
+					},
+					"inputDataExample": "{\"path\": \"/home/user/.ripgreprc\"}",
+					"outputDataExample": "{\"file_handle\": \"<FileHandle for /home/user/.ripgreprc>\"}"
+				},
+				{
+					"simStepId": "dce19a2f-ac20-4bb6-8ce0-8150f674a79e",
+					"diagramNodeId": "895367ac-aa01-4097-9268-ba1818a71fe2",
+					"simStepLabel": "Stream File Content",
+					"simStepDescription": "The raw content of the configuration file is streamed to the `parse_reader` function for processing.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "78",
+						"endLine": "80",
+						"relevantVariables": [
+							"rdr"
+						]
+					},
+					"inputDataExample": "{\"file_content\": \"# Always use smart case searching\\n--smart-case\\n\\n# Show 3 lines of context\\n--context=3\"}",
+					"outputDataExample": "{\"file_content\": \"# Always use smart case searching\\n--smart-case\\n\\n# Show 3 lines of context\\n--context=3\"}"
+				},
+				{
+					"simStepId": "76df1817-4e07-4705-9977-511590839d2f",
+					"diagramNodeId": "0d09f461-d956-4155-84dd-ac5b0d3fe32f",
+					"simStepLabel": "Parse Lines into Arguments",
+					"simStepDescription": "The `parse_reader` function reads the file line by line. It trims whitespace, ignores empty lines and lines starting with '#', and collects the remaining lines as individual string arguments.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "81",
+						"endLine": "82",
+						"relevantVariables": [
+							"bufrdr",
+							"args",
+							"errs"
+						]
+					},
+					"inputDataExample": "{\"file_content_lines\": [\"# Always use smart case searching\", \"--smart-case\", \"\", \"# Show 3 lines of context\", \"--context=3\"]}",
+					"outputDataExample": "{\"args\": [\"--smart-case\", \"--context=3\"]}"
+				},
+				{
+					"simStepId": "1b335ae0-0b1c-4f7f-b5b1-acc877020cfd",
+					"diagramNodeId": "3a8581e6-7090-48fe-ac3d-9c9e277ad131",
+					"simStepLabel": "Return Parsed Arguments",
+					"simStepDescription": "The vector of arguments parsed from the configuration file is returned to the main argument parsing logic.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/config.rs",
+						"startLine": "26",
+						"endLine": "27",
+						"relevantVariables": [
+							"args",
+							"errs"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"--smart-case\", \"--context=3\"], \"errs\": []}",
+					"outputDataExample": "{\"args\": [\"--smart-case\", \"--context=3\"], \"errs\": []}"
+				},
+				{
+					"simStepId": "2eab94ba-9641-43cb-812f-ad2707e994f2",
+					"diagramNodeId": "02ebf40d-232a-4dc2-814a-9384bee8b86c",
+					"simStepLabel": "Combine Config and CLI Arguments",
+					"simStepDescription": "The arguments from the configuration file are prepended to the arguments that were passed directly on the command line. This allows CLI arguments to override settings from the config file if necessary (depending on the argument parser's behavior).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/parse.rs",
+						"startLine": "101",
+						"endLine": "102",
+						"relevantVariables": [
+							"final_args",
+							"config_args"
+						]
+					},
+					"inputDataExample": "{\"config_args\": [\"--smart-case\", \"--context=3\"], \"cli_args\": [\"Sherlock\", \"--context=2\"]}",
+					"outputDataExample": "{\"final_args\": [\"--smart-case\", \"--context=3\", \"Sherlock\", \"--context=2\"]}"
+				},
+				{
+					"simStepId": "f430c5a5-a5b6-4ef9-bba9-428a525473b0",
+					"diagramNodeId": "9252420b-60b5-4c4a-9caf-c21360ce6363",
+					"simStepLabel": "Pass Final Arguments to Parser",
+					"simStepDescription": "The final, combined list of arguments is passed to the core argument parsing engine.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/parse.rs",
+						"startLine": "105",
+						"endLine": "105",
+						"relevantVariables": [
+							"parser",
+							"final_args",
+							"low"
+						]
+					},
+					"inputDataExample": "{\"final_args\": [\"--smart-case\", \"--context=3\", \"Sherlock\", \"--context=2\"]}",
+					"outputDataExample": "{\"final_args\": [\"--smart-case\", \"--context=3\", \"Sherlock\", \"--context=2\"]}"
+				},
+				{
+					"simStepId": "515d1804-15f1-40e3-90a1-d5989c4dee95",
+					"diagramNodeId": "3847c1e0-1d3f-4b44-9368-c809b22d3c07",
+					"simStepLabel": "Finalize Application Configuration",
+					"simStepDescription": "The argument parser processes the complete list of arguments, creating the final runtime configuration that will be used for the search operation. In this example, `smart-case` would be enabled, and the context would be set to 2 (as the CLI argument overrides the one from the config file).",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/parse.rs",
+						"startLine": "105",
+						"endLine": "107",
+						"relevantVariables": [
+							"parser",
+							"final_args",
+							"low"
+						]
+					},
+					"inputDataExample": "{\"final_args\": [\"--smart-case\", \"--context=3\", \"Sherlock\", \"--context=2\"]}",
+					"outputDataExample": "{\"final_configuration\": {\"smart_case\": true, \"context\": 2, \"pattern\": \"Sherlock\"}}"
+				}
+			],
+			"description": "<ul><li>- Set default flags and options in a configuration file to avoid typing them repeatedly</li><li>- ripgrep reads arguments from the file specified by the <code>RIPGREP_CONFIG_PATH</code> environment variable</li><li>- Each line in the file is treated as a single command-line argument</li><li>- The parsing logic resides in <code>crates/core/flags/config</li><li>rs</code>, allowing for consistent and personalized search settings</li></ul>",
+			"simulationNodesAndEdges": {
+				"b74f4280-0b72-4063-9c21-580e6588b528": {
+					"simStepIds": [
+						"53335fc8-21d3-427d-a0bc-065331dd8455"
+					]
+				},
+				"356bd94f-a94b-4fd5-bcca-b70c7ca4635a": {
+					"simStepIds": [
+						"ee00687d-8740-4686-91dc-2c9b2d857807"
+					]
+				},
+				"73cf577a-892c-43a8-b6e1-0d653047705b": {
+					"simStepIds": [
+						"5db838b5-8830-4636-bc22-193687d2fd6c"
+					]
+				},
+				"0d09f461-d956-4155-84dd-ac5b0d3fe32f": {
+					"simStepIds": [
+						"76df1817-4e07-4705-9977-511590839d2f"
+					]
+				},
+				"02ebf40d-232a-4dc2-814a-9384bee8b86c": {
+					"simStepIds": [
+						"2eab94ba-9641-43cb-812f-ad2707e994f2"
+					]
+				},
+				"3847c1e0-1d3f-4b44-9368-c809b22d3c07": {
+					"simStepIds": [
+						"515d1804-15f1-40e3-90a1-d5989c4dee95"
+					]
+				},
+				"6cbb2324-9bba-4b03-9472-b8e0fdb05fec": {
+					"simStepIds": [
+						"9c783d6b-041c-472b-8009-f9d7f05f409b"
+					]
+				},
+				"7445db58-4de9-4bf1-959f-6ed9ee4ef0d7": {
+					"simStepIds": [
+						"faaf3835-6ea8-4880-a5c8-c7d90cd5c161"
+					]
+				},
+				"895367ac-aa01-4097-9268-ba1818a71fe2": {
+					"simStepIds": [
+						"dce19a2f-ac20-4bb6-8ce0-8150f674a79e"
+					]
+				},
+				"3a8581e6-7090-48fe-ac3d-9c9e277ad131": {
+					"simStepIds": [
+						"1b335ae0-0b1c-4f7f-b5b1-acc877020cfd"
+					]
+				},
+				"9252420b-60b5-4c4a-9caf-c21360ce6363": {
+					"simStepIds": [
+						"f430c5a5-a5b6-4ef9-bba9-428a525473b0"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "RIPGREP_CONFIG_PATH, config.rs, parse_reader",
+			"generationPrompt": "Customize behavior with a persistent configuration file",
+			"generationKeywords": "RIPGREP_CONFIG_PATH, config.rs, parse_reader"
+		},
+		"Search files with various text encodings": {
+			"name": "Search files with various text encodings",
+			"simSteps": [
+				{
+					"simStepId": "b6a40cb7-9840-46d5-94bc-88c1871975e8",
+					"diagramNodeId": "6d246d4e-62ee-405d-8b63-811f90b00d88",
+					"simStepLabel": "Parse Encoding Flag",
+					"simStepDescription": "The application parses command-line arguments, specifically handling the `-E` or `--encoding` flag. This flag allows the user to specify a text encoding for the files being searched, such as `utf-16le`, or use special values like `auto` (default) for BOM sniffing or `none` to disable transcoding.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/defs.rs",
+						"startLine": "1639",
+						"endLine": "1647",
+						"relevantVariables": [
+							"v",
+							"args",
+							"value",
+							"label",
+							"args.encoding",
+							"EncodingMode",
+							"grep::searcher::Encoding::new(label)"
+						]
+					},
+					"inputDataExample": "{\"args\": [\"rg\", \"-E\", \"utf-16le\", \"Sherlock\", \"sherlock_utf16.txt\"]}",
+					"outputDataExample": "{\"encoding_mode\": \"Some('utf-16le')\"}"
+				},
+				{
+					"simStepId": "119d90d7-b49f-4d30-b31e-5b4457e67da0",
+					"diagramNodeId": "5ac2827e-c8b1-4d79-8e9f-771e7da3c58f",
+					"simStepLabel": "Transmit Parsed Encoding Mode",
+					"simStepDescription": "The parsed encoding mode, represented by the `EncodingMode` enum, is passed from the low-level argument parsing logic to the higher-level argument structure (`HiArgs`) for further processing.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "266",
+						"endLine": "266",
+						"relevantVariables": [
+							"low.encoding"
+						]
+					},
+					"inputDataExample": "{\"encoding_mode\": \"Some('utf-16le')\"}",
+					"outputDataExample": "{\"encoding_mode\": \"Some('utf-16le')\"}"
+				},
+				{
+					"simStepId": "8ee1c9df-6396-4e12-ae68-36d37af17522",
+					"diagramNodeId": "a7912183-942d-4ef1-8193-19ca96a33723",
+					"simStepLabel": "Configure Searcher with Encoding",
+					"simStepDescription": "The high-level arguments are used to configure a `SearcherBuilder`. The `EncodingMode` determines how the searcher will handle text encodings. If a specific encoding is provided, it's set on the builder. If `Disabled` is selected, BOM sniffing is turned off. The default `Auto` mode relies on BOM sniffing.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "738",
+						"endLine": "745",
+						"relevantVariables": [
+							"self.encoding",
+							"EncodingMode",
+							"builder",
+							"builder.encoding(Some(enc.clone()))",
+							"builder.bom_sniffing(false)"
+						]
+					},
+					"inputDataExample": "{\"encoding_mode\": \"Some(Encoding('utf-16le'))\"}",
+					"outputDataExample": "{\"searcher_builder_config\": {\"encoding\": \"utf-16le\", \"bom_sniffing\": true}}"
+				},
+				{
+					"simStepId": "d71c84b6-60fd-4a58-b7fe-8dcfd4befdde",
+					"diagramNodeId": "62e31db8-ab01-4033-bd81-484c75e6805a",
+					"simStepLabel": "Transmit Searcher Configuration",
+					"simStepDescription": "The configured `SearcherBuilder` instance is used to create the final `Searcher`. This step represents the transition from configuration to the actual search machinery.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/core/flags/hiargs.rs",
+						"startLine": "746",
+						"endLine": "746",
+						"relevantVariables": [
+							"builder.build()"
+						]
+					},
+					"inputDataExample": "{\"searcher_builder_config\": {\"encoding\": \"utf-16le\", \"bom_sniffing\": true}}",
+					"outputDataExample": "{\"searcher_builder_config\": {\"encoding\": \"utf-16le\", \"bom_sniffing\": true}}"
+				},
+				{
+					"simStepId": "4461b461-2591-45e6-932f-6e9b650a307b",
+					"diagramNodeId": "c7494dfa-baaa-4fa5-bd1e-8cbfd6ac22d6",
+					"simStepLabel": "Initialize Transcoding Reader",
+					"simStepDescription": "When the `Searcher` is built, it initializes a `DecodeReaderBytesBuilder`. This builder is configured based on the encoding settings (explicit encoding, BOM sniffing). It's responsible for creating a streaming reader that will transcode file contents to UTF-8 on the fly.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "323",
+						"endLine": "328",
+						"relevantVariables": [
+							"decode_builder",
+							"DecodeReaderBytesBuilder",
+							"self.config.encoding",
+							"self.config.bom_sniffing"
+						]
+					},
+					"inputDataExample": "{\"config\": {\"encoding\": \"Some(Encoding('utf-16le'))\", \"bom_sniffing\": true}}",
+					"outputDataExample": "{\"decode_builder\": {\"encoding\": \"utf-16le\", \"strip_bom\": true, \"bom_sniffing\": true}}"
+				},
+				{
+					"simStepId": "792c24e2-7b7e-44e4-bc1f-c7caeb1b3c05",
+					"diagramNodeId": "93b18460-293e-4e8b-9423-a869f384e22f",
+					"simStepLabel": "Transmit Raw File Bytes",
+					"simStepDescription": "During the search, raw bytes from a file are read and passed to the searcher's internal methods. This data may be in any encoding, such as UTF-16LE with a BOM.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "785",
+						"endLine": "785",
+						"relevantVariables": [
+							"slice",
+							"self.search_reader",
+							"matcher",
+							"write_to"
+						]
+					},
+					"inputDataExample": "{\"file_bytes\": \"[255, 254, 83, 0, 104, 0, 101, 0, 114, 0, 108, 0, 111, 0, 99, 0, 107, 0]\"}",
+					"outputDataExample": "{\"file_bytes\": \"[255, 254, 83, 0, 104, 0, 101, 0, 114, 0, 108, 0, 111, 0, 99, 0, 107, 0]\"}"
+				},
+				{
+					"simStepId": "f4dd4a98-1feb-4b88-b69a-c12509fac076",
+					"diagramNodeId": "4e62b922-2b01-4a1e-afdc-73119a26653e",
+					"simStepLabel": "Detect BOM and Need for Transcoding",
+					"simStepDescription": "Before searching a slice of bytes directly, the searcher checks if transcoding is necessary. This is true if an encoding was manually specified or if BOM sniffing is enabled and a UTF-8 or UTF-16 BOM is detected at the start of the data.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "1032",
+						"endLine": "1041",
+						"relevantVariables": [
+							"slice_has_bom",
+							"slice",
+							"encoding_rs::Encoding::for_bom",
+							"enc"
+						]
+					},
+					"inputDataExample": "{\"slice\": \"[255, 254, 83, 0, 104, 0, 101, 0, 114, 0, 108, 0, 111, 0, 99, 0, 107, 0]\"}",
+					"outputDataExample": "{\"needs_transcoding\": true, \"detected_encoding_from_bom\": \"UTF-16LE\"}"
+				},
+				{
+					"simStepId": "ca819058-9cab-4aad-8f61-1b6ae3b048d4",
+					"diagramNodeId": "e74e24ed-351c-4c12-97be-3415ebc9544d",
+					"simStepLabel": "Transmit Bytes for Transcoding",
+					"simStepDescription": "If transcoding is needed, the raw bytes are sent to a generic reader that uses the previously configured `DecodeReaderBytes` to perform the conversion from the source encoding (e.g., UTF-16LE) to UTF-8.",
+					"isEdge": 1,
+					"sourceCodeMapping": {
+						"filePath": "crates/searcher/src/searcher/mod.rs",
+						"startLine": "782",
+						"endLine": "785",
+						"relevantVariables": [
+							"self.slice_needs_transcoding",
+							"self.search_reader"
+						]
+					},
+					"inputDataExample": "{\"raw_bytes\": \"[255, 254, 83, 0, 104, 0, 101, 0, 114, 0, 108, 0, 111, 0, 99, 0, 107, 0]\"}",
+					"outputDataExample": "{\"raw_bytes\": \"[255, 254, 83, 0, 104, 0, 101, 0, 114, 0, 108, 0, 111, 0, 99, 0, 107, 0]\"}"
+				},
+				{
+					"simStepId": "6151f2ec-ed96-486d-88d4-5b8087febd55",
+					"diagramNodeId": "99aa5944-d138-4a45-b6c4-f5aa605d648d",
+					"simStepLabel": "Search Transcoded UTF-8 Data",
+					"simStepDescription": "The matcher operates on the transcoded UTF-8 data. The core matching logic assumes it is working with UTF-8 (or at least ASCII-compatible) bytes, ensuring that patterns like `.` match Unicode codepoints correctly and the search yields accurate results.",
+					"isEdge": 0,
+					"sourceCodeMapping": {
+						"filePath": "crates/matcher/src/lib.rs",
+						"startLine": "620",
+						"endLine": "623",
+						"relevantVariables": [
+							"Matcher::find",
+							"haystack",
+							"self.find_at"
+						]
+					},
+					"inputDataExample": "{\"haystack_utf8\": \"Sherlock\"}",
+					"outputDataExample": "{\"match\": {\"start\": 0, \"end\": 8}}"
+				}
+			],
+			"description": "<ul><li>- Supports searching files in text encodings other than UTF-8, such as UTF-16, latin-1, and more</li><li>- Automatically detects and handles UTF-16 byte order marks (BOMs) by transcoding the file to UTF-8 before searching</li><li>- Manually specify an encoding for all files using the <code>-E</code>/<code>--encoding</code> flag</li><li>- This ensures correct matching in codebases with mixed or legacy file encodings</li></ul>",
+			"simulationNodesAndEdges": {
+				"6d246d4e-62ee-405d-8b63-811f90b00d88": {
+					"simStepIds": [
+						"b6a40cb7-9840-46d5-94bc-88c1871975e8"
+					]
+				},
+				"a7912183-942d-4ef1-8193-19ca96a33723": {
+					"simStepIds": [
+						"8ee1c9df-6396-4e12-ae68-36d37af17522"
+					]
+				},
+				"c7494dfa-baaa-4fa5-bd1e-8cbfd6ac22d6": {
+					"simStepIds": [
+						"4461b461-2591-45e6-932f-6e9b650a307b"
+					]
+				},
+				"4e62b922-2b01-4a1e-afdc-73119a26653e": {
+					"simStepIds": [
+						"f4dd4a98-1feb-4b88-b69a-c12509fac076"
+					]
+				},
+				"99aa5944-d138-4a45-b6c4-f5aa605d648d": {
+					"simStepIds": [
+						"6151f2ec-ed96-486d-88d4-5b8087febd55"
+					]
+				},
+				"5ac2827e-c8b1-4d79-8e9f-771e7da3c58f": {
+					"simStepIds": [
+						"119d90d7-b49f-4d30-b31e-5b4457e67da0"
+					]
+				},
+				"62e31db8-ab01-4033-bd81-484c75e6805a": {
+					"simStepIds": [
+						"d71c84b6-60fd-4a58-b7fe-8dcfd4befdde"
+					]
+				},
+				"93b18460-293e-4e8b-9423-a869f384e22f": {
+					"simStepIds": [
+						"792c24e2-7b7e-44e4-bc1f-c7caeb1b3c05"
+					]
+				},
+				"e74e24ed-351c-4c12-97be-3415ebc9544d": {
+					"simStepIds": [
+						"ca819058-9cab-4aad-8f61-1b6ae3b048d4"
+					]
+				}
+			},
+			"isAIGenerated": true,
+			"keywords": "encoding, transcoding, UTF-16, BOM",
+			"generationPrompt": "Search files with various text encodings",
+			"generationKeywords": "encoding, transcoding, UTF-16, BOM"
+		}
+	},
+	"cellToPath": {
+		"3646a81a-90a8-4e03-9edc-aa57cdac7b1a": "crates",
+		"e5b6f85e-1f94-41d3-9325-10478a89b2ab": "crates/core",
+		"c393214d-4cd9-4e9c-af7f-8e1a32a304d9": "crates/searcher",
+		"14d523e9-c1b5-4563-b363-fe8fe9b1526a": "crates/printer",
+		"1de265a1-6a71-47d7-abed-b108889514fe": "crates/core/main.rs",
+		"8f9bac61-0642-4f56-b1cb-1cea1561cbf3": "crates/core/search.rs",
+		"7791b4f0-fb07-460c-b271-120f406ebb0f": "crates/searcher/src",
+		"a334a4c1-baf9-49e5-aca9-ae35ce59f2e6": "crates/printer/src",
+		"53cb6b16-b950-4897-a640-82eba4de81a1": "crates/searcher/src/searcher",
+		"751b59eb-f3b9-4687-a283-41fa179f6afb": "crates/printer/src/standard.rs",
+		"c722bd80-e030-414d-8fbb-e7eadf1e4d46": "crates/searcher/src/searcher/glue.rs",
+		"c95f6bf0-37bb-4751-81b5-c7ac672c4ce7": "crates/searcher/src/searcher/core.rs",
+		"fee953b3-dffd-4d29-ad76-fea8b03638cc": "crates/core/main.rs-simstep-7efb1a09-7560-48ad-a0f1-30842809392c",
+		"83a26f9f-eeeb-45b2-b930-b4e4f8fcbdbc": "crates/core/main.rs-simstep-cf43319c-b1d9-4928-ba7c-fffcea0ec4a2",
+		"1ae07df4-0afc-4b84-8509-d192b67a02b7": "crates/searcher/src/searcher/glue.rs-simstep-45cec2f1-4626-4c94-bdc5-b335e5b79737",
+		"5f11addd-cb94-4f31-832b-46065a8dfc6f": "crates/printer/src/standard.rs-simstep-2d60efc6-662a-44d2-8119-952b3086d6d4",
+		"8551ceba-1b32-46e2-b8bf-bb30f8d4a919": "crates/core/main.rs-simstep-58fe133a-d724-448e-ac44-cfd3a3de05c3",
+		"85096c21-9d43-4a81-ac77-7ca2190cb90b": "generated-edge-simstep-6e04f3ee-cf2e-4bf2-9a6d-4214a7a374c0-85096c21-9d43-4a81-ac77-7ca2190cb90b",
+		"9fb3ce61-9f81-406c-9731-2cb3ff818751": "generated-edge-simstep-c3d5c692-3e98-4504-b8b1-3703956760cf-9fb3ce61-9f81-406c-9731-2cb3ff818751",
+		"82f265f8-7b1f-44cf-bfbd-ee35faf26464": "generated-edge-simstep-3a31188c-55b1-457d-b045-74d11700fb85-82f265f8-7b1f-44cf-bfbd-ee35faf26464",
+		"b4dcec36-61e7-490b-bafc-73b42d9bd58c": "generated-edge-simstep-19d357b3-8e9b-4af5-a091-c987d64461c9-b4dcec36-61e7-490b-bafc-73b42d9bd58c",
+		"95a132b0-cb93-47e3-85a7-2559d26a96fa": "crates/ignore",
+		"6dd23c41-9b85-4eac-8d10-f5a4d8471500": "crates/core/flags",
+		"0751ba53-2e9e-455a-b317-7e17cd1f7435": "crates/ignore/src",
+		"e11c87c1-4b86-42cf-a740-809c81173399": "crates/core/flags/hiargs.rs",
+		"7c808311-f12d-4829-9cc9-e59f8d531acf": "crates/ignore/src/walk.rs",
+		"c13599cd-7cf5-49da-93ca-dee59885f16b": "crates/ignore/src/dir.rs",
+		"db033e3f-e6b1-4b32-b52c-f1aa28b55f7a": "crates/ignore/src/pathutil.rs",
+		"c6f0866d-2750-44ec-85af-afcfcffddcc6": "crates/searcher/src/line_buffer.rs",
+		"6159f387-63f5-472a-a2a8-909686ab2b9c": "crates/searcher/src/searcher/mod.rs",
+		"0c0ae16f-ce03-4b45-8001-fd6d86c88c26": "crates/core/flags/hiargs.rs-simstep-17258a40-341b-47fc-b8e6-6bdbbf1759d3",
+		"59ee464b-3ddf-4a59-ba64-be5255d0cc3b": "crates/ignore/src/dir.rs-simstep-049e3fd2-dc49-48ac-b95b-96bc13fa4a8d",
+		"7bc3efd5-9a5f-4d85-b799-1cf87790a08b": "crates/ignore/src/dir.rs-simstep-681eb898-faca-46ef-a99b-af7070c21873",
+		"191cb317-868f-44b3-bfef-976fe8f9561a": "crates/ignore/src/pathutil.rs-simstep-4c61c550-7269-4c76-aee0-08c0f397b63d",
+		"6ef2a6c0-4f92-464f-a99b-5ae56014db4c": "crates/ignore/src/dir.rs-simstep-3b6d2214-4834-4292-b20d-2195aee86817",
+		"efcce7e5-1cc9-44ef-9f3e-0267f3d8e61c": "crates/ignore/src/walk.rs-simstep-c6dbaeb3-618a-4ddb-8383-ece56abda9f7",
+		"c5edbe5d-c942-47d6-b464-8d24d32bd4b9": "crates/core/search.rs-simstep-94371253-20a9-4bdd-804c-a3defb50205c",
+		"8ece57d2-6f37-42c4-aba9-0db00edd4778": "crates/searcher/src/line_buffer.rs-simstep-786d36e5-52b9-428a-af4e-0e65cee1bab9",
+		"f096b26b-a993-448f-9764-7c56299ae181": "crates/printer/src/standard.rs-simstep-ed897cb1-4622-4c1d-ab3c-3e88b147fd16",
+		"191cbdde-4908-42fb-99ae-4ccf18378a52": "generated-edge-simstep-1fa4ede1-d9a1-4edf-8443-a5878a24d62d-191cbdde-4908-42fb-99ae-4ccf18378a52",
+		"f0fa491a-956f-498d-922d-3d73fe953d49": "generated-edge-simstep-f3c0ef98-f677-4c8f-ac07-e8ce71b74c72-f0fa491a-956f-498d-922d-3d73fe953d49",
+		"d62ccc25-76e1-4381-a70d-e5ce8d90fb24": "generated-edge-simstep-fc2bcd71-b55a-4ad8-925f-75ffd5f943fa-d62ccc25-76e1-4381-a70d-e5ce8d90fb24",
+		"8c993125-7225-4859-ada2-a68a5057eef2": "generated-edge-simstep-21575ecc-e6a4-47e5-bef4-7ad289630870-8c993125-7225-4859-ada2-a68a5057eef2",
+		"9774c7d2-1598-4580-b459-a7ad58371c67": "generated-edge-simstep-e2375c8d-2acb-43e0-8718-00a2a7d7f689-9774c7d2-1598-4580-b459-a7ad58371c67",
+		"149dcef9-f96c-43f7-929c-23413d0e8a91": "generated-edge-simstep-5f11c073-1322-447e-b02e-c1a2af1486b2-149dcef9-f96c-43f7-929c-23413d0e8a91",
+		"565af3ba-7954-409d-a197-83965385f34b": "generated-edge-simstep-987d43f3-ac7a-4a1b-aa29-6d888da7cfd7-565af3ba-7954-409d-a197-83965385f34b",
+		"2dc01b80-bbbf-4e09-a31a-919fe1618285": "crates/core/flags/defs.rs",
+		"465beff6-3b19-481a-b7a8-0b61e74302b5": "crates/ignore/src/overrides.rs",
+		"3f3bc1d5-000f-4822-be75-16a56083e24e": "crates/ignore/src/gitignore.rs",
+		"b1006ef2-6bee-4c45-8fdc-16d270f6525b": "crates/ignore/src/types.rs",
+		"c0e8b1c4-e191-4211-aad4-6be88b92a072": "crates/core/flags/defs.rs-simstep-6dc9840e-c33e-4483-bd88-e650fabd9c51",
+		"3ffa4ee8-16b5-4a7b-81d6-b67fa0d4902e": "crates/core/flags/hiargs.rs-simstep-ae5710b2-b742-4996-acee-51055fa1bff6",
+		"8fcf5028-964d-4098-af80-f840077566fd": "crates/ignore/src/gitignore.rs-simstep-62db2008-5759-4d9c-b784-cc1af83fc022",
+		"213cea68-d7ad-48dd-8dd7-00bca6be9fe0": "crates/ignore/src/overrides.rs-simstep-7ad608c3-dcaa-4ea6-9174-e68e0eb9b2cc",
+		"b9a26826-880c-4aae-a625-a90ec028fe51": "crates/core/flags/hiargs.rs-simstep-0464bbb0-b454-405b-a324-4369cf40ec88",
+		"0cbb420c-a59b-4509-87bc-460aca72c0a8": "crates/ignore/src/types.rs-simstep-1ad53294-cb57-4125-8eb7-ed18c5df7b68",
+		"c3641066-8c5c-46ed-a6aa-de328dd7eb77": "crates/ignore/src/dir.rs-simstep-630716f8-5ac5-4a7d-add4-8397d5a75ed4",
+		"a5d8b375-2488-4f96-aab2-7d8c385d79b4": "crates/ignore/src/overrides.rs-simstep-8b70ea48-d1ad-43d2-99dd-f518f1d769a0",
+		"7bdae677-921a-4912-a2ac-cbac8532d23a": "crates/ignore/src/types.rs-simstep-11c00d82-e36d-45fd-b0d7-3faa1fa51041",
+		"326ad82c-48cd-4347-950f-22b130f8e5e6": "crates/ignore/src/walk.rs-simstep-bf776a19-6bae-4046-95ea-13b541e5f5e2",
+		"4373def2-f4db-41fc-94b4-238b72df32ce": "generated-edge-simstep-18184e88-837a-4e4d-b824-bc371595d42e-4373def2-f4db-41fc-94b4-238b72df32ce",
+		"907e6e6c-2343-4711-9a97-43fe6d3a5028": "generated-edge-simstep-d2788fc8-9f77-477b-b66a-8a3a0256d495-907e6e6c-2343-4711-9a97-43fe6d3a5028",
+		"e438d533-3d6a-4b67-b71c-401a36231f57": "generated-edge-simstep-cbc04ec5-7f3b-41ea-aff0-a227894d84d4-e438d533-3d6a-4b67-b71c-401a36231f57",
+		"896e330b-cfc6-4374-a7b1-657d1d934deb": "generated-edge-simstep-31c3ff94-6416-420f-be54-9de852fca0bf-896e330b-cfc6-4374-a7b1-657d1d934deb",
+		"4a584a2c-6ac0-458f-a6e6-fbedf1bfc558": "generated-edge-simstep-d356c6e2-8e97-451e-8513-0bd524e26db4-4a584a2c-6ac0-458f-a6e6-fbedf1bfc558",
+		"752bf5ed-35cd-4781-ad19-3c05f57b97ba": "generated-edge-simstep-13500c0e-aac3-4ded-9289-d7ed7d2d09b0-752bf5ed-35cd-4781-ad19-3c05f57b97ba",
+		"fae9326f-561f-4440-917a-76709f63cc4b": "generated-edge-simstep-844cc506-cb15-46b2-91a9-d48983b0275b-fae9326f-561f-4440-917a-76709f63cc4b",
+		"8251023d-5d41-4ade-967c-827bb2260b58": "generated-edge-simstep-55684897-6e03-479f-9a3f-8820d4d6e965-8251023d-5d41-4ade-967c-827bb2260b58",
+		"7b0048d0-45b3-493e-8a50-cc63f340fcf4": "generated-edge-simstep-b0195d65-34f3-41c2-8e52-95658a7345f9-7b0048d0-45b3-493e-8a50-cc63f340fcf4",
+		"0884b62e-148b-4ff9-a904-58d1778ae344": "crates/searcher/src/searcher/mmap.rs",
+		"66293298-c3cb-4599-bcd5-e7953b5d7dd4": "crates/core/flags/defs.rs-simstep-75c2e235-6f3d-4b06-8b04-2483afc3099e",
+		"84746b22-cd66-4264-951b-93cbfcfcec4e": "crates/core/flags/hiargs.rs-simstep-7521380f-7d32-4e5b-9db7-7283fc5a1849",
+		"b89c98dc-23d9-4cce-9be4-536ca9171466": "crates/core/main.rs-simstep-f59f7cc3-b38d-40b8-8cbf-5631eae02b01",
+		"ce78aee4-28b0-48aa-9dcd-cea1499fe055": "crates/ignore/src/walk.rs-simstep-865bde1f-4ad4-48a7-ac16-5c18982c9b6e",
+		"50d27edd-cc9e-4ffb-b101-47ed6733e521": "crates/searcher/src/searcher/mod.rs-simstep-d2470e87-a2b3-46a6-aed1-311ce11e8ba4",
+		"52ce1885-7c83-4d59-bdff-23f1bb97e227": "crates/searcher/src/searcher/mmap.rs-simstep-ecb4222e-b8cf-452c-a513-7ec478d405c0",
+		"f529c8cd-56d1-48ad-a512-f0f7defe5412": "crates/searcher/src/searcher/mod.rs-simstep-da0d44b6-c6a4-4225-b58f-f376a56fbed5",
+		"93ce1fc0-3e9b-4006-bd90-19e2b12360cf": "crates/core/main.rs-simstep-f25b1366-166b-4aeb-b0ed-76556649a3cb",
+		"cb5aebde-56ce-465a-ad14-778478e1d656": "generated-edge-simstep-45bdcfba-93f7-422b-9d35-09081ebb404e-cb5aebde-56ce-465a-ad14-778478e1d656",
+		"4f260272-c6cd-467f-b4d4-93c296782e2c": "generated-edge-simstep-a84c9cfc-7d69-40a7-b0c4-05cfae4cf433-4f260272-c6cd-467f-b4d4-93c296782e2c",
+		"01d631f3-22b2-488d-98e7-7308d65cc727": "generated-edge-simstep-aee911c8-133d-4e18-96f8-c0c17ce79bc5-01d631f3-22b2-488d-98e7-7308d65cc727",
+		"22408ca7-b743-48fb-8695-aeff33a3c2e7": "generated-edge-simstep-e4ab2591-123b-4226-9dce-0bf698044e39-22408ca7-b743-48fb-8695-aeff33a3c2e7",
+		"c0213efd-7314-413f-8a1c-e1159cc69aa2": "generated-edge-simstep-6bf6e40d-0459-4062-837b-7f7aaf4ac646-c0213efd-7314-413f-8a1c-e1159cc69aa2",
+		"3f2ab0e4-bf45-434a-93b4-aeeadffca912": "generated-edge-simstep-dc87abd5-f7d5-4e81-b907-9d0dc81a8780-3f2ab0e4-bf45-434a-93b4-aeeadffca912",
+		"83819a4c-f73e-4503-a339-1dc4682b4083": "generated-edge-simstep-d2a75f16-c0b5-4c7b-8637-00e059aeeb19-83819a4c-f73e-4503-a339-1dc4682b4083",
+		"29af75a9-9290-47e5-83b2-f36ed1ce5d7e": "crates/printer/src/json.rs",
+		"8e1867e9-5816-49c8-b130-bca332750136": "crates/printer/src/jsont.rs",
+		"d48d9d48-4e13-4dce-8fe6-b2346af1a6f1": "crates/core/flags/defs.rs-simstep-aaf4906a-6ce5-4590-aaae-1baaa1b68131",
+		"10744c57-f84c-492e-b79f-784999aee8df": "crates/core/flags/hiargs.rs-simstep-ff303172-79ee-466d-a025-3e7cb3b8bd1f",
+		"c47986cb-26b4-49cc-ab66-12d7070bccb7": "crates/core/flags/hiargs.rs-simstep-9eec98ce-5973-4486-ad24-908bd31cb6ee",
+		"4a8f3082-dae3-4d64-b8cc-5daa3388cf07": "crates/printer/src/standard.rs-simstep-09287ee8-73a7-4757-b92d-68d88304d0d2",
+		"6e81146c-872e-4c4c-803e-0baaece5085f": "crates/core/flags/defs.rs-simstep-0bf34798-9586-4200-8372-916999070ba2",
+		"33cc7b78-df88-4d09-8f65-a10685c61434": "crates/core/flags/hiargs.rs-simstep-c587fa94-e164-4f06-a7b3-c8794944667e",
+		"2eab1465-119d-480b-bae1-17b028327783": "crates/printer/src/jsont.rs-simstep-a65ca555-1efc-4aa6-9981-0bee62fd0660",
+		"df602689-8a7a-482d-9af0-5b7dea47b7af": "crates/printer/src/json.rs-simstep-a2b666ba-eafd-4092-987b-e08bb9144423",
+		"eced0960-84f0-4891-a161-39ce420e3eb4": "generated-edge-simstep-c02930b0-acb3-4acb-82aa-f12fd73c7958-eced0960-84f0-4891-a161-39ce420e3eb4",
+		"f74e6869-9dfb-4ab5-b418-eee1967ff1b7": "generated-edge-simstep-58734a8a-0dea-4e6c-8a97-10fb4edbc556-f74e6869-9dfb-4ab5-b418-eee1967ff1b7",
+		"739d06fc-85bf-49d2-92d0-b457891a3997": "generated-edge-simstep-905e58a3-7fef-4fbb-8262-b20e2f13f95b-739d06fc-85bf-49d2-92d0-b457891a3997",
+		"87dcc549-2a4f-4962-a82c-435e36134495": "generated-edge-simstep-6657886e-26ea-4991-95ed-deb42a2defce-87dcc549-2a4f-4962-a82c-435e36134495",
+		"ab2ae6b3-1a52-4b69-9e30-138f9abca118": "generated-edge-simstep-3e85aa42-d59d-48b9-9cd6-705aebf5f270-ab2ae6b3-1a52-4b69-9e30-138f9abca118",
+		"759cf0b4-c2e6-4460-b3fc-fe02917bbff5": "generated-edge-simstep-f1fd38a9-0707-40a4-870f-957bd40b166a-759cf0b4-c2e6-4460-b3fc-fe02917bbff5",
+		"f1ec947f-db2a-4a33-a6ee-cc741bdf2bc6": "generated-edge-simstep-e0dee126-27b6-4bf2-be62-8c5cb2e2bdc6-f1ec947f-db2a-4a33-a6ee-cc741bdf2bc6",
+		"6323efe0-98a0-45f3-b184-fcb1aeed0d87": "crates/pcre2",
+		"0e80d980-7644-4416-8f75-f3938ec74e42": "crates/pcre2/src",
+		"69ce905a-c410-4d74-a1fe-2cc52fd00f90": "crates/pcre2/src/matcher.rs",
+		"4ec77cd0-0718-4dc0-b655-1da844ab75e4": "crates/core/flags/defs.rs-simstep-b001bc82-d7e1-49ab-a45d-63ffedf1c538",
+		"8c0413a7-6389-4cf3-b267-6c20b31e8f41": "crates/core/flags/hiargs.rs-simstep-74cdd5d3-6b51-4c17-9dbe-7749bab1fe82",
+		"b9bd4cec-b0f5-4d8d-bd5f-d7b1f9ad1969": "crates/core/flags/hiargs.rs-simstep-62233f98-5f45-4d39-b8ef-c973da11c758",
+		"83de0dc6-071d-4f66-ae7f-3fef41b2fd41": "crates/core/search.rs-simstep-ba7e0d80-75c9-474f-aad3-ee3d141b6ca7",
+		"1b8df61d-c161-4bb7-8f36-7b60820c8c77": "crates/pcre2/src/matcher.rs-simstep-6a0d0b01-cff5-447b-9126-9882fee3297f",
+		"bd08bc31-79b5-41c4-b72f-1f982dbf6c67": "generated-edge-simstep-41560cc1-7be4-4776-aa80-28b666b2856d-bd08bc31-79b5-41c4-b72f-1f982dbf6c67",
+		"e5f83134-7c9e-4b1e-9fe6-11442cc8ada6": "generated-edge-simstep-6bdeb4e1-c75c-491a-9a32-0d8b1a923323-e5f83134-7c9e-4b1e-9fe6-11442cc8ada6",
+		"5f587f6a-71bd-43ec-8897-c472b079ccbb": "generated-edge-simstep-2d7b834e-8129-49d6-a0a9-9e6856693240-5f587f6a-71bd-43ec-8897-c472b079ccbb",
+		"b9bf9f98-f6b7-469a-8e6d-9a6f874ad69b": "generated-edge-simstep-0c7a5f6f-7e72-467f-a7fc-441d1d90276b-b9bf9f98-f6b7-469a-8e6d-9a6f874ad69b",
+		"8a47be41-574e-42a3-a9ad-ceb52925ef7d": "crates/cli",
+		"693f6dee-8efe-4875-a743-9ba2142142d5": "crates/cli/src",
+		"41042c38-c39a-4f31-ac7e-8f22a35b5950": "crates/cli/src/decompress.rs",
+		"6950d682-71a7-4969-af34-b22455c841b5": "crates/core/flags/defs.rs-simstep-c29476dd-d067-4661-be7e-e18c3e7ba67b",
+		"5e7f3e2a-3045-4c34-9557-d2da69c2bfbd": "crates/core/search.rs-simstep-03cde253-45d7-4216-b089-825d6fce5ec3",
+		"f2367165-3be5-454c-beec-9c4c3f19aeaa": "crates/cli/src/decompress.rs-simstep-62181f2a-eced-4924-abc4-e51841f7335c",
+		"daecd6d5-6039-4085-b8b7-4bdc80524390": "crates/cli/src/decompress.rs-simstep-ed429283-8a30-4f1b-ab61-5346e35d6f11",
+		"e1234c16-9d04-4f80-b296-bc44531e2631": "crates/core/search.rs-simstep-c4c60c43-8605-42f6-90b5-a22802789740",
+		"7362a4c6-d940-422f-a0d2-3e49105ac6f4": "crates/core/flags/defs.rs-simstep-7d379ed5-539b-41c8-bcbe-5d9fa4bdd8f5",
+		"dfb4c43e-3ec9-43ba-a616-bd57f6674cd8": "crates/core/search.rs-simstep-fecebcee-2687-4ad2-bd79-0604a4b8f040",
+		"86edb909-6f63-4907-bb50-60f871024063": "crates/core/search.rs-simstep-a6afeacb-02c1-483d-acff-a916be15f12b",
+		"7350fe65-16a7-4f96-8d68-53cd4463483e": "crates/core/search.rs-simstep-93ca8f43-acd3-4f93-8b5f-d6519f91c142",
+		"d89113c0-1afc-40f8-935f-5818ce5ed080": "crates/core/search.rs-simstep-47746894-69db-4cbd-a200-99b4c83720e4",
+		"e610fcdb-7b3d-4c76-a5a7-bf2a9a036842": "generated-edge-simstep-4083ea4d-062d-4897-8fad-f1ad1b4ebc26-e610fcdb-7b3d-4c76-a5a7-bf2a9a036842",
+		"649d1671-efd9-4933-94b7-c80ec8f8f603": "generated-edge-simstep-1a8296ec-9bfa-4445-9bf1-4ed59a570087-649d1671-efd9-4933-94b7-c80ec8f8f603",
+		"b7dd50a5-16ab-4e4a-a2b1-30d073f9a865": "generated-edge-simstep-cbcca008-6917-456e-84ad-6ac96aee2929-b7dd50a5-16ab-4e4a-a2b1-30d073f9a865",
+		"d1f0e123-d681-4008-9b8e-70b2e9dd1a61": "generated-edge-simstep-2d904b7f-b736-4eb7-b961-6237216bbc50-d1f0e123-d681-4008-9b8e-70b2e9dd1a61",
+		"d66acde4-7c31-485a-ad90-d307e992c854": "generated-edge-simstep-0c16b679-fb65-4ba2-8122-0f8587bed00d-d66acde4-7c31-485a-ad90-d307e992c854",
+		"819d3118-b828-47c2-8db4-db53d31d4602": "generated-edge-simstep-a1c58ae9-1849-4d4f-829e-bac1dee284a2-819d3118-b828-47c2-8db4-db53d31d4602",
+		"86cb2db8-78ff-4673-a44f-1e65bcff3c23": "generated-edge-simstep-ecc26b7d-566e-48e3-8605-6d8157c8cfe0-86cb2db8-78ff-4673-a44f-1e65bcff3c23",
+		"1eea7ee6-c491-4846-b4d4-6330921830f1": "generated-edge-simstep-f548b28d-ab54-4a7c-9535-51ef8ed4deb4-1eea7ee6-c491-4846-b4d4-6330921830f1",
+		"02707b27-5078-41b7-a003-ae03686fa230": "crates/matcher",
+		"e06ee63f-36c9-42e4-97b0-1ad9378b5230": "crates/matcher/src",
+		"e53d587b-4877-478d-a400-2a13ca7ad0b8": "crates/printer/src/util.rs",
+		"e496f288-b380-4295-b6e7-6610dff3c495": "crates/matcher/src/interpolate.rs",
+		"9a174586-50ee-48d2-b47d-c3911a03119e": "crates/core/flags/defs.rs-simstep-737b4594-f05a-4364-aa55-1ef7fab5ae40",
+		"5d83f4af-db25-4c71-8317-27d5cbf2da80": "crates/core/flags/hiargs.rs-simstep-87174d16-5d77-402d-b09b-bcd88b34b5de",
+		"4ca89a94-e328-4aeb-8515-45ccb701cf74": "crates/printer/src/standard.rs-simstep-bebc0274-fcfd-425d-91f2-160c6f551f30",
+		"c3846db4-1ff4-4054-82c9-2f32f2c517f4": "crates/matcher/src/interpolate.rs-simstep-d2bc60fd-f612-4d8a-84cd-e6047becc03b",
+		"3efaced4-f954-4e21-b403-6b6d4a6e2bc6": "crates/printer/src/util.rs-simstep-38b80c9b-104d-40c8-89f1-a859b0319f76",
+		"3d0a7b6c-5fb7-49af-acd6-f7ed5e04465c": "generated-edge-simstep-43539604-968a-4968-a6c1-26ee641911cb-3d0a7b6c-5fb7-49af-acd6-f7ed5e04465c",
+		"e331d461-e40c-4ead-8f93-9bd36e1cdf0d": "generated-edge-simstep-84a73e2d-c815-4663-8744-d398d2a607da-e331d461-e40c-4ead-8f93-9bd36e1cdf0d",
+		"816cc43f-51b4-407b-8df9-1d12d4fa167c": "generated-edge-simstep-b7497dbb-aa8f-42f9-a95e-ce7dbd1e9889-816cc43f-51b4-407b-8df9-1d12d4fa167c",
+		"d27342b4-6373-4c8e-88ac-ba9fa43697f8": "generated-edge-simstep-dff3d113-2348-452a-b637-8ac3dc89ef5c-d27342b4-6373-4c8e-88ac-ba9fa43697f8",
+		"84677a23-1d8c-41c9-ac9e-80d586cf64cd": "crates/core/flags/parse.rs",
+		"7b6a8a8e-2f63-42d8-9204-186a9c79c07c": "crates/core/flags/config.rs",
+		"b74f4280-0b72-4063-9c21-580e6588b528": "crates/core/flags/parse.rs-simstep-53335fc8-21d3-427d-a0bc-065331dd8455",
+		"356bd94f-a94b-4fd5-bcca-b70c7ca4635a": "crates/core/flags/config.rs-simstep-ee00687d-8740-4686-91dc-2c9b2d857807",
+		"73cf577a-892c-43a8-b6e1-0d653047705b": "crates/core/flags/config.rs-simstep-5db838b5-8830-4636-bc22-193687d2fd6c",
+		"0d09f461-d956-4155-84dd-ac5b0d3fe32f": "crates/core/flags/config.rs-simstep-76df1817-4e07-4705-9977-511590839d2f",
+		"02ebf40d-232a-4dc2-814a-9384bee8b86c": "crates/core/flags/parse.rs-simstep-2eab94ba-9641-43cb-812f-ad2707e994f2",
+		"3847c1e0-1d3f-4b44-9368-c809b22d3c07": "crates/core/flags/parse.rs-simstep-515d1804-15f1-40e3-90a1-d5989c4dee95",
+		"6cbb2324-9bba-4b03-9472-b8e0fdb05fec": "generated-edge-simstep-9c783d6b-041c-472b-8009-f9d7f05f409b-6cbb2324-9bba-4b03-9472-b8e0fdb05fec",
+		"7445db58-4de9-4bf1-959f-6ed9ee4ef0d7": "generated-edge-simstep-faaf3835-6ea8-4880-a5c8-c7d90cd5c161-7445db58-4de9-4bf1-959f-6ed9ee4ef0d7",
+		"895367ac-aa01-4097-9268-ba1818a71fe2": "generated-edge-simstep-dce19a2f-ac20-4bb6-8ce0-8150f674a79e-895367ac-aa01-4097-9268-ba1818a71fe2",
+		"3a8581e6-7090-48fe-ac3d-9c9e277ad131": "generated-edge-simstep-1b335ae0-0b1c-4f7f-b5b1-acc877020cfd-3a8581e6-7090-48fe-ac3d-9c9e277ad131",
+		"9252420b-60b5-4c4a-9caf-c21360ce6363": "generated-edge-simstep-f430c5a5-a5b6-4ef9-bba9-428a525473b0-9252420b-60b5-4c4a-9caf-c21360ce6363",
+		"f6a82a2a-6939-4378-8a4f-da0d135b2f5c": "crates/matcher/src/lib.rs",
+		"6d246d4e-62ee-405d-8b63-811f90b00d88": "crates/core/flags/defs.rs-simstep-b6a40cb7-9840-46d5-94bc-88c1871975e8",
+		"a7912183-942d-4ef1-8193-19ca96a33723": "crates/core/flags/hiargs.rs-simstep-8ee1c9df-6396-4e12-ae68-36d37af17522",
+		"c7494dfa-baaa-4fa5-bd1e-8cbfd6ac22d6": "crates/searcher/src/searcher/mod.rs-simstep-4461b461-2591-45e6-932f-6e9b650a307b",
+		"4e62b922-2b01-4a1e-afdc-73119a26653e": "crates/searcher/src/searcher/mod.rs-simstep-f4dd4a98-1feb-4b88-b69a-c12509fac076",
+		"99aa5944-d138-4a45-b6c4-f5aa605d648d": "crates/matcher/src/lib.rs-simstep-6151f2ec-ed96-486d-88d4-5b8087febd55",
+		"5ac2827e-c8b1-4d79-8e9f-771e7da3c58f": "generated-edge-simstep-119d90d7-b49f-4d30-b31e-5b4457e67da0-5ac2827e-c8b1-4d79-8e9f-771e7da3c58f",
+		"62e31db8-ab01-4033-bd81-484c75e6805a": "generated-edge-simstep-d71c84b6-60fd-4a58-b7fe-8dcfd4befdde-62e31db8-ab01-4033-bd81-484c75e6805a",
+		"93b18460-293e-4e8b-9423-a869f384e22f": "generated-edge-simstep-792c24e2-7b7e-44e4-bc1f-c7caeb1b3c05-93b18460-293e-4e8b-9423-a869f384e22f",
+		"e74e24ed-351c-4c12-97be-3415ebc9544d": "generated-edge-simstep-ca819058-9cab-4aad-8f61-1b6ae3b048d4-e74e24ed-351c-4c12-97be-3415ebc9544d"
+	}
+}
